@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neon Overdrive: Sunset Outrun</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&display=swap');
+
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #10002b;
+            font-family: 'Orbitron', sans-serif;
+            color: #fff;
+            user-select: none;
+        }
+
+        #game-canvas {
+            display: block;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        #ui-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 20px;
+            box-sizing: border-box;
+            z-index: 10;
+        }
+
+        .hud-text {
+            font-size: 1.5rem;
+            text-shadow: 0 0 10px #ff5500, 0 0 20px #ff5500;
+        }
+
+        #speedometer {
+            color: #ff0055;
+            text-shadow: 0 0 10px #ff0055, 0 0 20px #ff0055;
+            font-size: 2rem;
+            align-self: flex-end;
+        }
+
+        .screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(16, 0, 43, 0.85);
+            backdrop-filter: blur(5px);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 20;
+            pointer-events: auto;
+            transition: opacity 0.3s;
+        }
+
+        .hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        h1 {
+            font-size: 4.5rem;
+            margin-bottom: 10px;
+            color: #fff;
+            text-transform: uppercase;
+            text-shadow: 4px 4px 0 #ff0055, -2px -2px 0 #ffaa00, 0 0 25px #ff0055;
+            text-align: center;
+            letter-spacing: 2px;
+        }
+
+        button {
+            padding: 15px 50px;
+            font-size: 1.5rem;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: bold;
+            color: #fff;
+            background: transparent;
+            border: 2px solid #ffaa00;
+            border-radius: 5px;
+            cursor: pointer;
+            text-transform: uppercase;
+            box-shadow: 0 0 15px rgba(255, 170, 0, 0.4) inset, 0 0 15px rgba(255, 170, 0, 0.4);
+            transition: all 0.2s;
+            margin-top: 20px;
+        }
+
+        button:hover {
+            background: #ffaa00;
+            color: #000;
+            box-shadow: 0 0 30px #ffaa00 inset, 0 0 30px #ffaa00;
+        }
+
+        .instructions {
+            margin-top: 20px;
+            color: #aaa;
+            font-size: 1rem;
+            letter-spacing: 1px;
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://unpkg.com/three@0.128.0/examples/js/postprocessing/EffectComposer.js"></script>
+    <script src="https://unpkg.com/three@0.128.0/examples/js/postprocessing/RenderPass.js"></script>
+    <script src="https://unpkg.com/three@0.128.0/examples/js/postprocessing/ShaderPass.js"></script>
+    <script src="https://unpkg.com/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
+    <script src="https://unpkg.com/three@0.128.0/examples/js/shaders/CopyShader.js"></script>
+    <script src="https://unpkg.com/three@0.128.0/examples/js/shaders/LuminosityHighPassShader.js"></script>
+</head>
+<body>
+
+    <canvas id="game-canvas"></canvas>
+
+    <div id="ui-layer">
+        <div class="hud-text">SCORE: <span id="score">0</span></div>
+        <div id="speedometer"><span id="speed">120</span> KM/H</div>
+    </div>
+
+    <div id="start-screen" class="screen">
+        <h1>OUTRUN</h1>
+        <button id="start-btn">IGNITE ENGINE</button>
+        <div class="instructions">Use LEFT/RIGHT Arrows or A/D to steer</div>
+    </div>
+
+    <div id="game-over-screen" class="screen hidden">
+        <h1 style="text-shadow: 3px 3px 0 #f00, -3px -3px 0 #ffaa00, 0 0 20px #f00;">WRECKED</h1>
+        <div class="hud-text" style="margin: 20px 0;">FINAL SCORE: <span id="final-score">0</span></div>
+        <button id="restart-btn">REBOOT</button>
+    </div>
+
+    <script>
+        // --- AUDIO ENGINE ---
+        let audioCtx, masterGain, engineOsc, engineGain;
+        let nextNoteTime = 0, noteIndex = 0;
+
+        function initAudio() {
+            if (audioCtx) return;
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            masterGain = audioCtx.createGain();
+            masterGain.gain.value = 0.4;
+            masterGain.connect(audioCtx.destination);
+
+            engineOsc = audioCtx.createOscillator();
+            engineOsc.type = 'sawtooth'; 
+            engineGain = audioCtx.createGain();
+            engineGain.gain.value = 0; 
+            
+            const filter = audioCtx.createBiquadFilter();
+            filter.type = 'lowpass';
+            filter.frequency.value = 800; 
+
+            engineOsc.connect(filter);
+            filter.connect(engineGain);
+            engineGain.connect(masterGain);
+            engineOsc.start();
+        }
+
+        function startEngineSound() {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            engineGain.gain.setTargetAtTime(0.4, audioCtx.currentTime, 0.5);
+            nextNoteTime = audioCtx.currentTime + 0.1;
+        }
+
+        function stopEngineSound() {
+            if(engineGain) engineGain.gain.setTargetAtTime(0, audioCtx.currentTime, 0.1);
+        }
+
+        function playBGM() {
+            if (!audioCtx || gameState !== 'playing') return;
+            if (audioCtx.currentTime >= nextNoteTime) {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(masterGain);
+                
+                if (noteIndex % 4 === 0) { 
+                    osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+                    gain.gain.setValueAtTime(0.8, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+                } else { 
+                    osc.type = 'square';
+                    const notes = [110.00, 110.00, 146.83, 110.00]; 
+                    osc.frequency.setValueAtTime(notes[noteIndex % 4], audioCtx.currentTime); 
+                    gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+                }
+                
+                osc.start(audioCtx.currentTime);
+                osc.stop(audioCtx.currentTime + 0.1);
+                
+                nextNoteTime += 0.18; 
+                noteIndex++;
+            }
+        }
+
+        function playCrashSound() {
+            if(!audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'square';
+            osc.frequency.setValueAtTime(300, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(10, audioCtx.currentTime + 0.5);
+            gain.gain.setValueAtTime(1.2, audioCtx.currentTime); 
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+            osc.connect(gain);
+            gain.connect(masterGain);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.5);
+            stopEngineSound();
+        }
+
+        // --- SETUP & RENDERING ---
+        const canvas = document.getElementById('game-canvas');
+        const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.shadowMap.enabled = true;
+        renderer.outputEncoding = THREE.sRGBEncoding;
+
+        const scene = new THREE.Scene();
+
+        // Sunset Gradient Sky
+        const skyCanvas = document.createElement('canvas');
+        skyCanvas.width = 2; skyCanvas.height = 512;
+        const skyCtx = skyCanvas.getContext('2d');
+        const skyGrad = skyCtx.createLinearGradient(0, 0, 0, 512);
+        skyGrad.addColorStop(0, '#050011');   
+        skyGrad.addColorStop(0.5, '#3d002e'); 
+        skyGrad.addColorStop(1, '#aa2a00');   
+        skyCtx.fillStyle = skyGrad;
+        skyCtx.fillRect(0, 0, 2, 512);
+        scene.background = new THREE.CanvasTexture(skyCanvas);
+        
+        scene.fog = new THREE.FogExp2(0xaa2a00, 0.006); 
+
+        // CAMERA (Tuned distance)
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(0, 3.2, 7.8); 
+        camera.lookAt(0, 1.0, -20);
+        
+        // Lighting
+        const ambientLight = new THREE.AmbientLight(0x885566, 0.25); 
+        scene.add(ambientLight);
+
+        const dirLight = new THREE.DirectionalLight(0xff4422, 0.8); 
+        dirLight.position.set(0, 50, -200);
+        dirLight.castShadow = true;
+        scene.add(dirLight);
+
+        // Bloom Post-Processing
+        const renderScene = new THREE.RenderPass(scene, camera);
+        const bloomPass = new THREE.UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.8, 0.4, 0.85);
+        const composer = new THREE.EffectComposer(renderer);
+        composer.addPass(renderScene);
+        composer.addPass(bloomPass);
+
+        // --- ENVIRONMENT ---
+        function createRetroSun() {
+            const sunCanvas = document.createElement('canvas');
+            sunCanvas.width = 512; sunCanvas.height = 512;
+            const ctx = sunCanvas.getContext('2d');
+            
+            const grad = ctx.createLinearGradient(0, 0, 0, 512);
+            grad.addColorStop(0, '#cc3300'); 
+            grad.addColorStop(1, '#880022'); 
+            ctx.fillStyle = grad;
+            ctx.beginPath();
+            ctx.arc(256, 256, 256, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.globalCompositeOperation = 'destination-out';
+            for (let i = 0; i < 14; i++) {
+                let yPos = 240 + (i * 20);
+                let height = 2 + (i * 2.2);
+                ctx.fillRect(0, yPos, 512, height);
+            }
+
+            const sunTex = new THREE.CanvasTexture(sunCanvas);
+            const sunMat = new THREE.MeshBasicMaterial({ map: sunTex, transparent: true, fog: false });
+            const sunGeo = new THREE.PlaneGeometry(180, 180);
+            const sun = new THREE.Mesh(sunGeo, sunMat);
+            sun.position.set(0, 35, -400); 
+            return sun;
+        }
+        scene.add(createRetroSun());
+
+        // Grid & Road 
+        const sideGrid = new THREE.GridHelper(500, 100, 0x8800ff, 0xff0088);
+        sideGrid.position.y = -0.16; 
+        sideGrid.material.transparent = true;
+        sideGrid.material.opacity = 0.35; 
+        scene.add(sideGrid);
+
+        const floorGeo = new THREE.PlaneGeometry(22, 500);
+        const floorMat = new THREE.MeshPhongMaterial({ color: 0x0a0a0c, depthWrite: false }); 
+        const floor = new THREE.Mesh(floorGeo, floorMat);
+        floor.rotation.x = -Math.PI / 2;
+        floor.position.y = -0.15; 
+        scene.add(floor);
+
+        const borderGeo = new THREE.PlaneGeometry(0.3, 500);
+        const borderMat = new THREE.MeshBasicMaterial({ color: 0xff8800 }); 
+        const leftBorder = new THREE.Mesh(borderGeo, borderMat);
+        leftBorder.rotation.x = -Math.PI / 2;
+        leftBorder.position.set(-11, -0.14, -200);
+        scene.add(leftBorder);
+        
+        const rightBorder = leftBorder.clone();
+        rightBorder.position.set(11, -0.14, -200);
+        scene.add(rightBorder);
+
+        const dashedLines = [];
+        const dashGeo = new THREE.PlaneGeometry(0.25, 4);
+        const dashMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+        for(let i = 0; i < 20; i++) {
+            const dash = new THREE.Mesh(dashGeo, dashMat);
+            dash.rotation.x = -Math.PI / 2;
+            dash.position.set(0, -0.13, -i * 10);
+            scene.add(dash);
+            dashedLines.push(dash);
+        }
+
+        // White Light Poles
+        function createLightPole(isRightSide) {
+            const group = new THREE.Group();
+            const darkMetal = new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.8 }); 
+            
+            const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.25, 9), darkMetal);
+            pole.position.y = 4.5;
+            group.add(pole);
+            
+            const arm = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 3.5), darkMetal);
+            arm.rotation.z = Math.PI / 2;
+            arm.position.set(isRightSide ? -1.5 : 1.5, 8.8, 0);
+            group.add(arm);
+
+            const lightMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+            const lightBox = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.2, 0.6), lightMat);
+            lightBox.position.set(isRightSide ? -3 : 3, 8.8, 0);
+            group.add(lightBox);
+
+            return group;
+        }
+
+        // Palm Trees 
+        function createPalmTree() {
+            const group = new THREE.Group();
+            const trunkMat = new THREE.MeshStandardMaterial({ color: 0x020202, roughness: 1.0 }); 
+            const leafMat = new THREE.MeshStandardMaterial({ color: 0x010201, side: THREE.DoubleSide });
+
+            const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.5, 7), trunkMat);
+            trunk.position.y = 3.5;
+            group.add(trunk);
+
+            for(let i=0; i < 7; i++) {
+                const leaf = new THREE.Mesh(new THREE.PlaneGeometry(1.5, 4.5), leafMat);
+                leaf.rotation.x = -Math.PI / 3.5;
+                leaf.rotation.y = (Math.PI * 2 / 7) * i;
+                leaf.position.set(0, 7, 0);
+                leaf.geometry.translate(0, 2.2, 0); 
+                group.add(leaf);
+            }
+            return group;
+        }
+
+        const sceneryObjects = [];
+        for(let z = 10; z > -400; z -= 40) {
+            const leftPole = createLightPole(false);
+            leftPole.position.set(-12.5, 0, z);
+            scene.add(leftPole);
+            
+            const rightPole = createLightPole(true);
+            rightPole.position.set(12.5, 0, z);
+            scene.add(rightPole);
+
+            const leftTree = createPalmTree();
+            leftTree.position.set(-16, 0, z - 20);
+            scene.add(leftTree);
+
+            const rightTree = createPalmTree();
+            rightTree.position.set(16, 0, z - 20);
+            scene.add(rightTree);
+
+            sceneryObjects.push(leftPole, rightPole, leftTree, rightTree);
+        }
+
+        // --- CAR GENERATOR ---
+        function createCar(isPlayer = false) {
+            const carGroup = new THREE.Group();
+
+            
+            const carColor = isPlayer ? 0x0066ff : [0xff0055, 0xffaa00, 0x222222, 0x888888][Math.floor(Math.random() * 4)];
+            const bodyMat = new THREE.MeshStandardMaterial({ color: carColor, metalness: 0.9, roughness: 0.1, flatShading: true });
+            const glassMat = new THREE.MeshStandardMaterial({ color: 0x000000, metalness: 0.9, roughness: 0.1 });
+            const tireMat = new THREE.MeshStandardMaterial({ color: 0x020202, roughness: 0.9 });
+
+            const baseGeo = new THREE.BoxGeometry(2.2, 0.65, 4.6);
+            const base = new THREE.Mesh(baseGeo, bodyMat);
+            base.position.y = 0.55;
+            base.castShadow = true;
+            carGroup.add(base);
+
+            const hoodGeo = new THREE.BoxGeometry(2.0, 0.3, 1.5);
+            const hood = new THREE.Mesh(hoodGeo, bodyMat);
+            hood.position.set(0, 0.8, -1.55);
+            hood.rotation.x = Math.PI / 16;
+            carGroup.add(hood);
+
+            const cabinGeo = new THREE.BoxGeometry(1.7, 0.55, 2.2);
+            const cabin = new THREE.Mesh(cabinGeo, glassMat);
+            cabin.position.set(0, 1.05, 0.2);
+            carGroup.add(cabin);
+
+            if(isPlayer) {
+                const spoilerGeo = new THREE.BoxGeometry(2.1, 0.1, 0.4);
+                const spoiler = new THREE.Mesh(spoilerGeo, bodyMat);
+                spoiler.position.set(0, 1.05, 2.2);
+                carGroup.add(spoiler);
+                
+                const strutGeo = new THREE.BoxGeometry(0.1, 0.25, 0.2);
+                const s1 = new THREE.Mesh(strutGeo, bodyMat);
+                s1.position.set(-0.8, 0.9, 2.2);
+                const s2 = new THREE.Mesh(strutGeo, bodyMat);
+                s2.position.set(0.8, 0.9, 2.2);
+                carGroup.add(s1, s2);
+            }
+
+            const wheelGeo = new THREE.CylinderGeometry(0.38, 0.38, 0.4, 24);
+            wheelGeo.rotateZ(Math.PI / 2);
+            const wheelPositions = [
+                [-1.2, 0.38, 1.4], [1.2, 0.38, 1.4],   
+                [-1.2, 0.38, -1.4], [1.2, 0.38, -1.4]  
+            ];
+            wheelPositions.forEach(pos => {
+                const wheel = new THREE.Mesh(wheelGeo, tireMat);
+                wheel.position.set(...pos);
+                carGroup.add(wheel);
+            });
+
+            // True Red Taillights (0xff0000)
+            const tailLightGeo = new THREE.PlaneGeometry(0.9, 0.15);
+            const tailLightMat = new THREE.MeshBasicMaterial({ color: 0xff0000 }); 
+            const tl1 = new THREE.Mesh(tailLightGeo, tailLightMat);
+            tl1.position.set(-0.6, 0.65, 2.31); 
+            const tl2 = tl1.clone();
+            tl2.position.set(0.6, 0.65, 2.31);
+            carGroup.add(tl1, tl2);
+
+            if (isPlayer) {
+                // True Red point lights
+                const glow1 = new THREE.PointLight(0xff0000, 1.5, 6);
+                glow1.position.set(-0.6, 0.55, 2.5);
+                carGroup.add(glow1);
+
+                const glow2 = new THREE.PointLight(0xff0000, 1.5, 6);
+                glow2.position.set(0.6, 0.55, 2.5);
+                carGroup.add(glow2);
+
+                const headLightGeo = new THREE.PlaneGeometry(0.4, 0.15);
+                const headLightMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+                const hl1 = new THREE.Mesh(headLightGeo, headLightMat);
+                hl1.position.set(-0.8, 0.6, -2.31);
+                hl1.rotation.y = Math.PI;
+                const hl2 = hl1.clone();
+                hl2.position.set(0.8, 0.6, -2.31);
+                carGroup.add(hl1, hl2);
+            }
+
+            return carGroup;
+        }
+
+        // --- GAME LOGIC ---
+        let gameState = 'start';
+        let speed = 1.0; 
+        let score = 0;
+        let obstacles = [];
+        const bounds = 9.5; 
+
+        const player = createCar(true); 
+        scene.add(player);
+
+        let playerVelocityX = 0;
+        const playerAcc = 0.08; 
+        const friction = 0.85;
+
+        const keys = { ArrowLeft: false, ArrowRight: false, a: false, d: false };
+        window.addEventListener('keydown', e => { if (keys.hasOwnProperty(e.key)) keys[e.key] = true; });
+        window.addEventListener('keyup', e => { if (keys.hasOwnProperty(e.key)) keys[e.key] = false; });
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            composer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        const uiScore = document.getElementById('score');
+        const uiSpeed = document.getElementById('speed');
+        const startScreen = document.getElementById('start-screen');
+        const gameOverScreen = document.getElementById('game-over-screen');
+        
+        function resetGame() {
+            initAudio(); 
+            startEngineSound();
+
+            obstacles.forEach(obs => scene.remove(obs.mesh));
+            obstacles = [];
+            
+            player.position.set(0, 0, 0);
+            playerVelocityX = 0;
+            player.rotation.z = 0;
+            player.rotation.y = 0;
+
+            score = 0;
+            speed = 1.0;
+            uiScore.innerText = score;
+            
+            startScreen.classList.add('hidden');
+            gameOverScreen.classList.add('hidden');
+            gameState = 'playing';
+        }
+
+        document.getElementById('start-btn').addEventListener('click', resetGame);
+        document.getElementById('restart-btn').addEventListener('click', resetGame);
+
+        function spawnTraffic() {
+            const mesh = createCar(false);
+            const boundingBoxSize = new THREE.Vector3(2.2, 1.4, 4.6); 
+            
+            mesh.position.x = (Math.random() * bounds * 2) - bounds;
+            mesh.position.z = -200; 
+            
+            scene.add(mesh);
+            
+            obstacles.push({
+                mesh: mesh,
+                box: new THREE.Box3(),
+                size: boundingBoxSize,
+                offset: new THREE.Vector3(0, 0.7, 0), 
+                speedOffset: Math.random() * 0.5 + 0.3 
+            });
+        }
+
+        const playerBox = new THREE.Box3();
+        const playerBoxSize = new THREE.Vector3(2.2, 1.4, 4.6); 
+
+        // --- MAIN LOOP ---
+        function animate() {
+            requestAnimationFrame(animate);
+
+            if (gameState === 'playing') {
+                speed += 0.0003;
+                score += speed * 0.1;
+                uiScore.innerText = Math.floor(score);
+                uiSpeed.innerText = Math.floor(speed * 120);
+
+                if (engineOsc && audioCtx) {
+                    engineOsc.frequency.setTargetAtTime(50 + (speed * 40), audioCtx.currentTime, 0.1);
+                }
+                playBGM();
+
+                if (keys.ArrowLeft || keys.a) playerVelocityX -= playerAcc;
+                if (keys.ArrowRight || keys.d) playerVelocityX += playerAcc;
+                
+                playerVelocityX *= friction;
+                player.position.x += playerVelocityX;
+
+                if (player.position.x > bounds) { player.position.x = bounds; playerVelocityX = 0; }
+                if (player.position.x < -bounds) { player.position.x = -bounds; playerVelocityX = 0; }
+
+                player.rotation.z = -playerVelocityX * 0.1;
+                player.rotation.y = -playerVelocityX * 0.03;
+
+                playerBox.setFromCenterAndSize(
+                    new THREE.Vector3(player.position.x, 0.7, player.position.z), 
+                    playerBoxSize
+                );
+
+                sideGrid.position.z += speed;
+                if (sideGrid.position.z > 5) sideGrid.position.z -= 5; 
+
+                dashedLines.forEach(dash => {
+                    dash.position.z += speed;
+                    if (dash.position.z > 5) dash.position.z -= 200;
+                });
+
+                sceneryObjects.forEach(obj => {
+                    obj.position.z += speed;
+                    if (obj.position.z > 20) obj.position.z -= 420; 
+                });
+
+                camera.position.x += (player.position.x * 0.4 - camera.position.x) * 0.1;
+                const fovTarget = 70 + (speed * 3); 
+                camera.fov += (fovTarget - camera.fov) * 0.1;
+                camera.updateProjectionMatrix();
+
+                if (Math.random() < 0.02 + (speed * 0.01) && obstacles.length < 10) {
+                    spawnTraffic();
+                }
+
+                for (let i = obstacles.length - 1; i >= 0; i--) {
+                    const obs = obstacles[i];
+                    obs.mesh.position.z += speed - obs.speedOffset;
+                    obs.box.setFromCenterAndSize(new THREE.Vector3(obs.mesh.position.x, obs.mesh.position.y + obs.offset.y, obs.mesh.position.z), obs.size);
+
+                    if (playerBox.intersectsBox(obs.box)) {
+                        gameState = 'gameover';
+                        playCrashSound();
+                        document.getElementById('final-score').innerText = Math.floor(score);
+                        gameOverScreen.classList.remove('hidden');
+                    }
+
+                    if (obs.mesh.position.z > 15) {
+                        scene.remove(obs.mesh);
+                        obstacles.splice(i, 1);
+                    }
+                }
+            }
+
+            composer.render();
+        }
+
+        animate();
+    </script>
+</body>
+</html>

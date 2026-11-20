@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>END OF HORIZON — Futuristic Racing Game</title>
+    <!-- Google Fonts: Teko for title, Rajdhani for UI & badges, Inter for description, Montserrat for button accents -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Montserrat:ital,wght@0,700;0,800;1,800;1,900&family=Rajdhani:wght@500;600;700&family=Teko:wght@700&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow-x: hidden;
+            font-family: 'Inter', sans-serif;
+            background-color: #0c0816;
+            color: #ffffff;
+        }
+
+        /* --------------------------------------------------
+           FULLSCREEN CINEMATIC HERO BACKGROUND
+        -------------------------------------------------- */
+        .hero-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-image: url('home_bg.jpg');
+            background-size: cover;
+            background-position: center bottom;
+            background-repeat: no-repeat;
+            z-index: 1;
+            transform: scale(1.015);
+            transition: transform 8s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        /* Subtle cinematic ambient parallax on mouse move */
+        body:hover .hero-bg {
+            transform: scale(1.035);
+        }
+
+        /* 
+           Cinematic Gradient Overlay (25-40% opacity):
+           Darkens left & right for razor-sharp text readability 
+           while keeping the central sunset, glowing sun, and road reflections bright!
+        */
+        .cinematic-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: 
+                /* Horizontal contrast mask for title (left) and card (right) */
+                linear-gradient(90deg, 
+                    rgba(8, 4, 18, 0.62) 0%, 
+                    rgba(8, 4, 18, 0.35) 32%, 
+                    rgba(8, 4, 18, 0.10) 50%, 
+                    rgba(8, 4, 18, 0.32) 70%, 
+                    rgba(8, 4, 18, 0.65) 100%),
+                /* Vertical vignette */
+                linear-gradient(180deg, 
+                    rgba(6, 2, 14, 0.40) 0%, 
+                    transparent 30%, 
+                    transparent 75%, 
+                    rgba(6, 2, 14, 0.48) 100%),
+                /* Subtle radial glow retention */
+                radial-gradient(ellipse at 50% 62%, transparent 32%, rgba(6, 2, 14, 0.35) 80%);
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        /* --------------------------------------------------
+           MAIN INTERFACE CONTAINER
+        -------------------------------------------------- */
+        .page-container {
+            position: relative;
+            z-index: 10;
+            width: 100vw;
+            min-height: 100vh;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 6.5vw;
+            animation: fadeInPage 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes fadeInPage {
+            0% { opacity: 0; transform: translateY(12px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --------------------------------------------------
+           LEFT HERO: TITLE & GAME DESCRIPTION
+        -------------------------------------------------- */
+        .hero-left {
+            flex: 1;
+            max-width: 580px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start;
+            position: relative;
+            padding-right: 30px;
+        }
+
+        /* Subtitle above title */
+        .hero-subtitle {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #FF2DAA;
+            letter-spacing: 5px;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            text-shadow: 0 0 14px rgba(255, 45, 170, 0.65);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .hero-subtitle::before {
+            content: '';
+            display: inline-block;
+            width: 28px;
+            height: 2px;
+            background: #FF2DAA;
+            box-shadow: 0 0 8px #FF2DAA;
+        }
+
+        /* 
+           TITLE: "END OF HORIZON"
+           Layered 3D Extrusion Effect:
+             - Top: Warm White (#FFF8F0)
+             - Middle Extrusion: Hot Pink / Magenta (#FF2DAA / #FF38C8)
+             - Bottom Extrusion: Light Cream (#FFE7C2)
+             - Thick dark black outline + stepped depth
+        */
+        .title-wrapper {
+            display: flex;
+            flex-direction: column;
+            line-height: 0.85;
+            transform: skewX(-5deg) rotate(-2deg);
+            transform-origin: left center;
+            margin-bottom: 24px;
+            filter: drop-shadow(0 15px 25px rgba(0, 0, 0, 0.7));
+        }
+
+        .title-line-1 {
+            font-family: 'Teko', 'Montserrat', sans-serif;
+            font-size: clamp(3rem, 6.2vw, 5.6rem);
+            font-weight: 700;
+            font-style: italic;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: #FFF8F0;
+            position: relative;
+            display: inline-block;
+            margin-bottom: 2px;
+            text-shadow:
+                /* Dark outline */
+                -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000,
+                -1px -2px 0 #000, 1px -2px 0 #000, -2px -1px 0 #000, 2px -1px 0 #000,
+                -2px 1px 0 #000, 2px 1px 0 #000, -1px 2px 0 #000, 1px 2px 0 #000,
+                /* Middle pink extrusion (#FF2DAA / #FF38C8) */
+                2px 2px 0 #FF2DAA, 3px 3px 0 #FF2DAA, 4px 4px 0 #FF2DAA, 5px 5px 0 #FF38C8,
+                /* Intermediate border */
+                6px 6px 0 #000,
+                /* Bottom light cream extrusion (#FFE7C2) */
+                7px 7px 0 #FFE7C2, 8px 8px 0 #FFE7C2,
+                /* Deep shadow & neon bloom */
+                9px 9px 0 #000, 10px 10px 0 rgba(0, 0, 0, 0.8),
+                0 0 25px rgba(255, 45, 170, 0.5);
+        }
+
+        .title-line-2 {
+            font-family: 'Teko', 'Montserrat', sans-serif;
+            font-size: clamp(4.8rem, 10.2vw, 9.2rem);
+            font-weight: 700;
+            font-style: italic;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            color: #FFF8F0;
+            position: relative;
+            display: inline-block;
+            text-shadow:
+                /* Dark outline */
+                -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000,
+                -1px -2px 0 #000, 1px -2px 0 #000, -2px -1px 0 #000, 2px -1px 0 #000,
+                -2px 1px 0 #000, 2px 1px 0 #000, -1px 2px 0 #000, 1px 2px 0 #000,
+                /* Middle pink extrusion (#FF2DAA / #FF38C8) */
+                2px 2px 0 #FF2DAA, 3px 3px 0 #FF2DAA, 4px 4px 0 #FF2DAA, 
+                5px 5px 0 #FF2DAA, 6px 6px 0 #FF38C8, 7px 7px 0 #FF38C8,
+                /* Intermediate border */
+                8px 8px 0 #000,
+                /* Bottom light cream extrusion (#FFE7C2) */
+                9px 9px 0 #FFE7C2, 10px 10px 0 #FFE7C2, 11px 11px 0 #FFE7C2,
+                /* Deep shadow & neon bloom */
+                12px 12px 0 #000, 14px 14px 0 rgba(0, 0, 0, 0.85),
+                0 0 40px rgba(255, 45, 170, 0.6);
+        }
+
+        /* Description Paragraph */
+        .hero-desc {
+            font-family: 'Inter', sans-serif;
+            font-size: 1.05rem;
+            line-height: 1.6;
+            color: rgba(255, 255, 255, 0.82);
+            max-width: 480px;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+            margin-bottom: 28px;
+            font-weight: 400;
+        }
+
+        /* Badges Row for key game highlights */
+        .feature-pills {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .pill {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: #ffffff;
+            background: rgba(22, 18, 32, 0.65);
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            backdrop-filter: blur(8px);
+            padding: 5px 12px;
+            border-radius: 6px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+        }
+
+        .pill span {
+            color: #FF9D32;
+            margin-right: 4px;
+        }
+
+        /* --------------------------------------------------
+           RIGHT HERO: CHARCOAL GLASS LOGIN CARD
+        -------------------------------------------------- */
+        .hero-right {
+            flex-shrink: 0;
+            width: 370px;
+            max-width: 90vw;
+            position: relative;
+        }
+
+        .login-card {
+            background: rgba(14, 12, 22, 0.82);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 20px;
+            padding: 34px 28px 30px 28px;
+            box-shadow: 
+                0 20px 50px rgba(0, 0, 0, 0.75),
+                0 0 25px rgba(255, 45, 170, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.18);
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .login-card:hover {
+            border-color: rgba(255, 45, 170, 0.4);
+            box-shadow: 
+                0 25px 60px rgba(0, 0, 0, 0.85),
+                0 0 35px rgba(255, 45, 170, 0.25),
+                inset 0 1px 0 rgba(255, 255, 255, 0.28);
+        }
+
+        .card-header {
+            margin-bottom: 2px;
+        }
+
+        .card-title {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1.55rem;
+            font-weight: 700;
+            color: #ffffff;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            line-height: 1.1;
+        }
+
+        .card-subtitle {
+            font-size: 0.88rem;
+            color: rgba(255, 255, 255, 0.58);
+            margin-top: 4px;
+            font-weight: 400;
+        }
+
+        /* 
+           Form Inputs:
+           Dark gray #1C1A26 base, rounded rectangular, clean icons,
+           subtle magenta/violet focus glow
+        */
+        .input-group {
+            display: flex;
+            align-items: center;
+            background: #1C1A26;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 12px;
+            height: 50px;
+            padding: 0 15px;
+            gap: 12px;
+            transition: all 0.25s ease;
+        }
+
+        .input-group:focus-within {
+            border-color: #FF2DAA;
+            background: #232032;
+            box-shadow: 
+                0 0 18px rgba(255, 45, 170, 0.35),
+                0 0 8px rgba(139, 92, 246, 0.3),
+                inset 0 0 8px rgba(255, 45, 170, 0.15);
+        }
+
+        .input-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: rgba(255, 255, 255, 0.5);
+            flex-shrink: 0;
+            transition: color 0.25s ease;
+        }
+
+        .input-group:focus-within .input-icon {
+            color: #FF2DAA;
+        }
+
+        .input-field {
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: #ffffff;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+
+        .input-field::placeholder {
+            color: rgba(255, 255, 255, 0.42);
+            font-size: 0.92rem;
+            font-weight: 400;
+        }
+
+        /* 
+           BUTTON 1: LOGIN (White / Warm White #F5F3F8)
+           Dark charcoal text, rounded corners, clean modern look
+        */
+        .btn-login {
+            width: 100%;
+            height: 48px;
+            background: #F5F3F8;
+            color: #12121A;
+            border: none;
+            border-radius: 12px;
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 700;
+            font-size: 1.15rem;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            cursor: pointer;
+            box-shadow: 0 4px 18px rgba(245, 243, 248, 0.25);
+            transition: all 0.25s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-login:hover {
+            background: #ffffff;
+            transform: translateY(-2px);
+            box-shadow: 
+                0 6px 24px rgba(255, 255, 255, 0.45),
+                0 0 15px rgba(255, 45, 170, 0.2);
+            color: #0b0814;
+        }
+
+        .btn-login:active {
+            transform: translateY(1px);
+            box-shadow: 0 2px 8px rgba(255, 255, 255, 0.2);
+        }
+
+        /* 
+           BUTTON 2: START GAME (ORANGE #FF9D32)
+           Primary game-launch action with highlight #FFB84D, 
+           shadow #E66A16, dark charcoal text, and arrow icon
+        */
+        .btn-start-game {
+            width: 100%;
+            height: 50px;
+            background: linear-gradient(135deg, #FFB84D 0%, #FF9D32 50%, #FF8C1A 100%);
+            color: #100A04;
+            border: none;
+            border-radius: 12px;
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 800;
+            font-size: 1.25rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            box-shadow: 
+                0 6px 20px rgba(230, 106, 22, 0.45),
+                0 0 20px rgba(255, 157, 50, 0.4),
+                inset 0 1px 1px rgba(255, 255, 255, 0.4);
+            transition: all 0.25s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-start-game::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(60deg, transparent 40%, rgba(255, 255, 255, 0.3) 50%, transparent 60%);
+            transform: translateX(-100%);
+            transition: transform 0.6s ease;
+        }
+
+        .btn-start-game:hover {
+            background: linear-gradient(135deg, #FFC466 0%, #FFA840 50%, #FF9526 100%);
+            transform: translateY(-2px);
+            box-shadow: 
+                0 8px 28px rgba(230, 106, 22, 0.6),
+                0 0 30px rgba(255, 157, 50, 0.65),
+                inset 0 1px 1px rgba(255, 255, 255, 0.6);
+        }
+
+        .btn-start-game:hover::after {
+            transform: translateX(100%);
+        }
+
+        .btn-start-game:active {
+            transform: translateY(1px);
+            box-shadow: 0 3px 12px rgba(230, 106, 22, 0.4);
+        }
+
+        .btn-start-game .arrow-icon {
+            stroke: #100A04;
+            stroke-width: 3.5;
+            transition: transform 0.25s ease;
+        }
+
+        .btn-start-game:hover .arrow-icon {
+            transform: translateX(4px);
+        }
+
+        /* Status Toast Message */
+        .toast-msg {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-align: center;
+            color: #FF9D32;
+            letter-spacing: 1px;
+            min-height: 18px;
+            text-shadow: 0 0 10px rgba(255, 157, 50, 0.6);
+            transition: all 0.3s ease;
+        }
+
+        /* --------------------------------------------------
+           RESPONSIVE DESIGN (DESKTOP, TABLET, MOBILE)
+        -------------------------------------------------- */
+        @media (max-width: 1024px) {
+            .page-container {
+                padding: 40px 5vw;
+                gap: 30px;
+            }
+
+            .hero-left {
+                max-width: 500px;
+            }
+        }
+
+        @media (max-width: 860px) {
+            html, body {
+                overflow-y: auto;
+            }
+
+            .page-container {
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                text-align: center;
+                padding: 50px 24px 60px 24px;
+                gap: 40px;
+            }
+
+            .hero-left {
+                align-items: center;
+                padding-right: 0;
+                max-width: 100%;
+            }
+
+            .hero-subtitle::before {
+                display: none;
+            }
+
+            .title-wrapper {
+                transform: skewX(-3deg) rotate(0deg);
+                align-items: center;
+            }
+
+            .hero-desc {
+                text-align: center;
+                font-size: 0.98rem;
+            }
+
+            .feature-pills {
+                justify-content: center;
+            }
+
+            .hero-right {
+                width: 100%;
+                max-width: 380px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .page-container {
+                padding: 35px 16px 50px 16px;
+            }
+
+            .title-line-1 {
+                font-size: 2.8rem;
+            }
+
+            .title-line-2 {
+                font-size: 4.6rem;
+            }
+
+            .login-card {
+                padding: 26px 20px;
+            }
+
+            .btn-login, .btn-start-game {
+                height: 46px;
+                font-size: 1.1rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Fullscreen Hero Background using the plain reference image -->
+    <div class="hero-bg"></div>
+
+    <!-- Cinematic Vignette & Ambient Light Overlay -->
+    <div class="cinematic-overlay"></div>
+
+    <!-- Main Page Layout -->
+    <main class="page-container">
+        <!-- Left Side: Title & Game Lore -->
+        <section class="hero-left">
+            <div class="hero-subtitle">FUTURE IS YOURS TO RACE</div>
+
+            <!-- Layered 3D Pixel-Extruded Title -->
+            <div class="title-wrapper" aria-label="End of Horizon">
+                <div class="title-line-1">END OF</div>
+                <div class="title-line-2">HORIZON</div>
+            </div>
+
+            <!-- Description -->
+            <p class="hero-desc">
+                Push beyond the limits. Race through a neon-lit future, master the streets, and chase the horizon. The road is yours — how far will you go?
+            </p>
+
+            <!-- Feature Badges -->
+            <div class="feature-pills">
+                <div class="pill"><span>★</span> 10 HYPER-KARTS</div>
+                <div class="pill"><span>★</span> 300+ KM/H OVERDRIVE</div>
+                <div class="pill"><span>★</span> DUAL PC & TOUCH</div>
+            </div>
+        </section>
+
+        <!-- Right Side: Charcoal Glass Login Card -->
+        <section class="hero-right">
+            <div class="login-card">
+                <div class="card-header">
+                    <h2 class="card-title">WELCOME BACK, RACER</h2>
+                    <p class="card-subtitle">Enter the highway.</p>
+                </div>
+
+                <!-- Username Input -->
+                <div class="input-group">
+                    <span class="input-icon">
+                        <!-- User SVG Icon -->
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                        </svg>
+                    </span>
+                    <input type="text" id="username" class="input-field" placeholder="Username" autocomplete="off" spellcheck="false" maxlength="15" value="VIPER_84">
+                </div>
+
+                <!-- Password Input -->
+                <div class="input-group">
+                    <span class="input-icon">
+                        <!-- Padlock SVG Icon -->
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/>
+                        </svg>
+                    </span>
+                    <input type="password" id="password" class="input-field" placeholder="Password" autocomplete="off" value="••••••••">
+                </div>
+
+                <!-- White LOGIN Button -->
+                <button id="login-btn" class="btn-login">LOGIN</button>
+
+                <!-- Orange START GAME Button -->
+                <button id="start-game-btn" class="btn-start-game">
+                    <span>START GAME</span>
+                    <svg class="arrow-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                </button>
+
+                <!-- Feedback Toast -->
+                <div id="toast" class="toast-msg">SYSTEM READY &bull; HIGHWAY ONLINE</div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Interactive Navigation Script -->
+    <script>
+        const usernameInput = document.getElementById('username');
+        const passwordInput = document.getElementById('password');
+        const loginBtn = document.getElementById('login-btn');
+        const startGameBtn = document.getElementById('start-game-btn');
+        const toast = document.getElementById('toast');
+
+        // Restore saved pilot name from localStorage if present
+        const savedPilot = localStorage.getItem('outrun_pilot');
+        if (savedPilot) {
+            usernameInput.value = savedPilot;
+        }
+
+        function launchGame(actionType) {
+            const rawUser = usernameInput.value.trim().toUpperCase();
+            const pilotName = rawUser.length > 0 ? rawUser : 'VIPER_84';
+
+            // Store pilot codename for seamless integration with racinggame.html
+            localStorage.setItem('outrun_pilot', pilotName);
+
+            if (actionType === 'login') {
+                toast.innerText = `ACCESS GRANTED: ${pilotName}`;
+                toast.style.color = '#FFF8F0';
+            } else {
+                toast.innerText = `IGNITING ENGINES...`;
+                toast.style.color = '#FF9D32';
+            }
+
+            // Smooth transition into the 3D racing game
+            setTimeout(() => {
+                window.location.href = 'racinggame.html';
+            }, 300);
+        }
+
+        loginBtn.addEventListener('click', () => launchGame('login'));
+        startGameBtn.addEventListener('click', () => launchGame('start'));
+
+        // Handle Enter key on inputs
+        [usernameInput, passwordInput].forEach(input => {
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    launchGame('start');
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

@@ -12,7 +12,8 @@
             box-sizing: border-box;
         }
 
-        html, body {
+        html,
+        body {
             width: 100%;
             height: 100%;
             height: 100vh;
@@ -213,6 +214,20 @@
             pointer-events: auto !important;
             touch-action: manipulation !important;
             -webkit-tap-highlight-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .hud-btn svg {
+            width: 14px;
+            height: 14px;
+            display: block;
+            flex-shrink: 0;
+            fill: currentColor;
+        }
+
+        .hud-btn-svg {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .hud-btn:hover {
@@ -1244,6 +1259,11 @@
                 box-sizing: border-box !important;
             }
 
+            .hud-btn svg {
+                width: 11px !important;
+                height: 11px !important;
+            }
+
             .hud-speedometer {
                 padding: 2px 7px !important;
                 gap: 3px !important;
@@ -1697,15 +1717,27 @@
         <!-- Right Cluster: Controls & Cockpit Speedometer -->
         <div class="hud-group">
             <button id="mute-toggle-btn" class="hud-btn" title="Mute/Unmute Car Engine Sound">
-                <span id="mute-icon">🔊</span>
+                <span id="mute-icon" class="hud-btn-svg"><svg width="14" height="14" viewBox="0 0 24 24"
+                        fill="currentColor">
+                        <path
+                            d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z" />
+                    </svg></span>
                 <span id="mute-text">SFX</span>
             </button>
             <button id="pause-toggle-btn" class="hud-btn" title="Pause Game (ESC)">
-                <span id="pause-btn-icon">⏸</span>
+                <span id="pause-btn-icon" class="hud-btn-svg"><svg width="12" height="12" viewBox="0 0 24 24"
+                        fill="currentColor">
+                        <rect x="5" y="3" width="4" height="18" rx="1" />
+                        <rect x="15" y="3" width="4" height="18" rx="1" />
+                    </svg></span>
                 <span id="pause-btn-text">PAUSE</span>
             </button>
             <button id="fullscreen-btn" class="hud-btn" title="Toggle Fullscreen">
-                <span id="fs-btn-icon">⛶</span>
+                <span id="fs-btn-icon" class="hud-btn-svg"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path
+                            d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" />
+                    </svg></span>
                 <span id="fs-btn-text">FULLSCREEN</span>
             </button>
 
@@ -1788,7 +1820,11 @@
             </button>
 
             <button id="garage-settings-btn" class="menu-btn btn-home" title="Camera & Controls Settings">
-                <span>⚙️ SETTINGS</span>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                    <path
+                        d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z" />
+                </svg>
+                <span>SETTINGS</span>
             </button>
 
             <button id="select-car-btn" class="menu-btn btn-select-car">
@@ -1826,7 +1862,12 @@
 
         <div class="menu-action-row" style="margin-top: 14px;">
             <button id="confirm-car-btn" class="menu-btn btn-ignite">PLAY WITH THIS CAR</button>
-            <button id="garage-home-btn" class="menu-btn btn-home">🏠 HOME</button>
+            <button id="garage-home-btn" class="menu-btn btn-home">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
+                </svg>
+                <span>HOME</span>
+            </button>
             <button id="back-btn" class="menu-btn btn-home">BACK</button>
         </div>
     </div>
@@ -1946,7 +1987,12 @@
 
         <div class="menu-action-row pause-action-row" style="margin-top: 16px;">
             <button id="resume-btn" class="menu-btn btn-ignite">RESUME (ESC)</button>
-            <button id="pause-home-btn" class="menu-btn btn-home">🏠 HOME</button>
+            <button id="pause-home-btn" class="menu-btn btn-home">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
+                </svg>
+                <span>HOME</span>
+            </button>
             <button id="pause-select-btn" class="menu-btn btn-select-car">CHANGE CAR</button>
             <button id="pause-restart-btn" class="menu-btn btn-home">RESTART</button>
         </div>
@@ -1978,6 +2024,21 @@
         ];
 
         let selectedKartId = 1;
+        try {
+            const urlParams = new URLSearchParams(window.location.search);
+            const qCar = parseInt(urlParams.get('car') || urlParams.get('select'), 10);
+            if (!isNaN(qCar) && qCar >= 1 && qCar <= KARTS.length) {
+                selectedKartId = qCar;
+            } else {
+                const hashSelect = window.location.hash.match(/select=(\d+)/);
+                if (hashSelect) {
+                    selectedKartId = parseInt(hashSelect[1], 10);
+                } else {
+                    const savedCar = parseInt(localStorage.getItem('horizon_selected_car'), 10);
+                    if (!isNaN(savedCar) && savedCar >= 1 && savedCar <= KARTS.length) selectedKartId = savedCar;
+                }
+            }
+        } catch (e) { }
         const loadedModels = {}; // id -> prepared THREE.Group template
         let loadedCount = 0;
 
@@ -1994,24 +2055,68 @@
             if (savedSfx !== null) sfxVolume = Math.min(1.0, Math.max(0.0, parseFloat(savedSfx)));
         } catch (e) { }
 
-        // UI Click Sound Function for all game buttons
+        // --- VECTOR SVG ICONS (CLEAN SYNTHWAVE AESTHETIC - ZERO EMOJIS) ---
+        const SVG_ICONS = {
+            sound: '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>',
+            mute: '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27l4.73 4.73H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/></svg>',
+            pause: '<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><rect x="5" y="3" width="4" height="18" rx="1"/><rect x="15" y="3" width="4" height="18" rx="1"/></svg>',
+            play: '<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 3 20 12 6 21 6 3"/></svg>',
+            fsExpand: '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>',
+            fsExit: '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"/></svg>'
+        };
+
+        // --- USER CUSTOM SOUND EFFECTS ---
+        // 1. Buttons: game assets/select.mp3
+        // 2. Crash: game assets/crash.mp3
+        // 3. Popups/Notifications: game assets/notification.mp3
+        let selectAudioBuffer = null;
+        let crashAudioBuffer = null;
+        let notificationAudioBuffer = null;
+
+        const selectFallbackAudio = new Audio('game assets/select.mp3');
+        const crashFallbackAudio = new Audio('game assets/crash.mp3');
+        const notificationFallbackAudio = new Audio('game assets/notification.mp3');
+        selectFallbackAudio.preload = 'auto';
+        crashFallbackAudio.preload = 'auto';
+        notificationFallbackAudio.preload = 'auto';
+
+        function loadSfxBuffers() {
+            if (!audioCtx) return;
+            const loadBuf = (url, cb) => {
+                fetch(url)
+                    .then(res => {
+                        if (!res.ok) throw new Error("HTTP " + res.status);
+                        return res.arrayBuffer();
+                    })
+                    .then(buf => audioCtx.decodeAudioData(buf))
+                    .then(decoded => cb(decoded))
+                    .catch(() => { });
+            };
+            if (!selectAudioBuffer) loadBuf('game assets/select.mp3', b => selectAudioBuffer = b);
+            if (!crashAudioBuffer) loadBuf('game assets/crash.mp3', b => crashAudioBuffer = b);
+            if (!notificationAudioBuffer) loadBuf('game assets/notification.mp3', b => notificationAudioBuffer = b);
+        }
+
+        // UI Click Sound Function for all game buttons (select.mp3)
         function playUiClickSound() {
-            if (!audioCtx) {
-                try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { return; }
-            }
-            if (audioCtx.state === 'suspended') audioCtx.resume();
+            initAudio();
+            loadSfxBuffers();
+            const vol = isEngineMuted ? 0 : sfxVolume * 0.9;
+            if (vol <= 0.001) return;
             try {
-                const osc = audioCtx.createOscillator();
-                const gain = audioCtx.createGain();
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(1050, audioCtx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(2100, audioCtx.currentTime + 0.04);
-                gain.gain.setValueAtTime(0.22, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
-                osc.connect(gain);
-                gain.connect(audioCtx.destination);
-                osc.start();
-                osc.stop(audioCtx.currentTime + 0.055);
+                if (audioCtx && audioCtx.state === 'running' && selectAudioBuffer) {
+                    const src = audioCtx.createBufferSource();
+                    src.buffer = selectAudioBuffer;
+                    const gain = audioCtx.createGain();
+                    gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+                    src.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    src.start(0);
+                } else {
+                    const clone = selectFallbackAudio.cloneNode();
+                    clone.volume = Math.min(1.0, vol);
+                    clone.play().catch(() => { });
+                }
             } catch (e) { }
         }
 
@@ -2080,8 +2185,9 @@
                 engineGain.connect(masterGain);
                 engineOsc.start();
 
-                // Load custom passing whoosh audio buffer
+                // Load custom audio buffers
                 loadWhooshAudio();
+                loadSfxBuffers();
             } catch (e) {
                 console.warn("Audio init error:", e);
             }
@@ -2107,7 +2213,7 @@
             localStorage.setItem('outrun_engine_muted', isEngineMuted);
             const muteIcon = document.getElementById('mute-icon');
             const muteText = document.getElementById('mute-text');
-            if (muteIcon) muteIcon.innerText = isEngineMuted ? '🔇' : '🔊';
+            if (muteIcon) muteIcon.innerHTML = isEngineMuted ? SVG_ICONS.mute : SVG_ICONS.sound;
             if (muteText) muteText.innerText = isEngineMuted ? 'MUTED' : 'SFX';
 
             if (engineGain && audioCtx) {
@@ -2122,7 +2228,7 @@
 
         // 3. USER PASSING CAR WHOOSH AUDIO (Close Proximity Only + Stereo Panning)
         // =========================================================================
-        // 🔊 WHOOSH SOUND CONTROLS (TUNE TIMING DELAY, LATERAL DISTANCE & VOLUME HERE)
+        // --- WHOOSH SOUND CONTROLS (TUNE TIMING DELAY, LATERAL DISTANCE & VOLUME HERE) ---
         // =========================================================================
         // 1. TIMING / TRIGGER POSITION (Z-axis distance relative to player):
         //    Player is at z = 0. Oncoming traffic approaches from negative Z towards player.
@@ -2142,7 +2248,7 @@
         //    - 4.0: Only cars passing directly in the adjacent lane trigger sound.
         //    - 5.8: Cars within 1 to 2 lanes trigger sound.
         //    - 8.5+: Cars across multiple distant highway lanes trigger sound.
-        let WHOOSH_MAX_DISTANCE = 5.8; // Maximum lane distance to hear whoosh
+        let WHOOSH_MAX_DISTANCE = 4.4; // Maximum lane distance to hear whoosh
 
         // 4. WHOOSH VOLUME MULTIPLIER:
         let WHOOSH_VOLUME = 2.4; // Sound loudness multiplier
@@ -2174,8 +2280,8 @@
                     console.warn("Whoosh buffer decode fallback:", err);
                 });
         }
-        window.addEventListener('click', () => { initAudio(); loadWhooshAudio(); }, { once: true });
-        window.addEventListener('keydown', () => { initAudio(); loadWhooshAudio(); }, { once: true });
+        window.addEventListener('click', () => { initAudio(); loadWhooshAudio(); loadSfxBuffers(); }, { once: true });
+        window.addEventListener('keydown', () => { initAudio(); loadWhooshAudio(); loadSfxBuffers(); }, { once: true });
 
         function playPassingCarWhoosh(carX) {
             if (gameState !== 'playing' || !audioCtx || !masterGain) return;
@@ -2239,20 +2345,26 @@
         }
 
         function playCrashSound() {
-            if (!audioCtx) return;
-            try {
-                const osc = audioCtx.createOscillator();
-                const gain = audioCtx.createGain();
-                osc.type = 'sawtooth';
-                osc.frequency.setValueAtTime(280, audioCtx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(25, audioCtx.currentTime + 0.65);
-                gain.gain.setValueAtTime(1.1, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.65);
-                osc.connect(gain);
-                gain.connect(masterGain);
-                osc.start();
-                osc.stop(audioCtx.currentTime + 0.65);
-            } catch (e) { }
+            initAudio();
+            loadSfxBuffers();
+            const vol = isEngineMuted ? 0 : sfxVolume * 1.0;
+            if (vol > 0.001) {
+                try {
+                    if (audioCtx && audioCtx.state === 'running' && crashAudioBuffer) {
+                        const src = audioCtx.createBufferSource();
+                        src.buffer = crashAudioBuffer;
+                        const gain = audioCtx.createGain();
+                        gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+                        src.connect(gain);
+                        gain.connect(audioCtx.destination);
+                        src.start(0);
+                    } else {
+                        const clone = crashFallbackAudio.cloneNode();
+                        clone.volume = Math.min(1.0, vol);
+                        clone.play().catch(() => { });
+                    }
+                } catch (e) { }
+            }
             stopEngineSound();
         }
 
@@ -2270,8 +2382,6 @@
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.shadowMap.enabled = false; // Disable heavy dynamic shadow passes for silky 60+ FPS
         renderer.outputEncoding = THREE.sRGBEncoding;
-        renderer.toneMapping = THREE.ACESFilmicToneMapping;
-        renderer.toneMappingExposure = 1.0;
 
         const scene = new THREE.Scene();
 
@@ -2285,7 +2395,7 @@
         skyGrad.addColorStop(0.50, '#42083b'); // Twilight magenta
         skyGrad.addColorStop(0.70, '#750e3d'); // Sunset crimson
         skyGrad.addColorStop(0.88, '#ad2432'); // Warm sunset coral-red
-        skyGrad.addColorStop(1, '#e64e28');    // Radiant sunset horizon glow
+        skyGrad.addColorStop(1, '#c83818');    // Deep warm sunset horizon glow
         skyCtx.fillStyle = skyGrad;
         skyCtx.fillRect(0, 0, 2, 512);
         scene.background = new THREE.CanvasTexture(skyCanvas);
@@ -2312,31 +2422,19 @@
         camera.lookAt(0, 0.9, -20);
         let camRoll = 0;
 
-        // Bright Clean Ambient Lighting (Evenly illuminates vehicles from all directions in their true original colors)
-        const ambientLight = new THREE.AmbientLight(0xffffff, 1.20);
+        // Original Lighting (Exact as in the beginning)
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.30);
         scene.add(ambientLight);
 
-        // Soft Sunset Directional Light (Warm dusk tone from horizon)
-        const dirLight = new THREE.DirectionalLight(0xff8550, 0.55);
-        dirLight.position.set(0, 45, -220);
+        // Directional Light from horizon (sunset glow, balanced to prevent harsh glare)
+        const dirLight = new THREE.DirectionalLight(0xff7744, 0.85);
+        dirLight.position.set(0, 50, -200);
         scene.add(dirLight);
 
-        // Dedicated Vehicle Follow Light (Gently illuminates player car's back, roof, and sides without blinding white glare)
-        const playerCarLight = new THREE.DirectionalLight(0xffffff, 0.45);
-        playerCarLight.position.set(0, 14, 12);
-        playerCarLight.target.position.set(0, 0.5, 0);
-        scene.add(playerCarLight);
-        scene.add(playerCarLight.target);
-
-        // Highway & Traffic Fill Light
-        const roadFillLight = new THREE.DirectionalLight(0xffffff, 0.40);
-        roadFillLight.position.set(0, 15, 20);
-        scene.add(roadFillLight);
-
-        // Bloom Post-Processing (Smooth velvety neon aura without harsh glare or grain)
+        // Bloom Post-Processing (Smooth velvety neon aura without harsh glare)
         const renderScene = new THREE.RenderPass(scene, camera);
         const bloomRes = new THREE.Vector2(Math.floor(window.innerWidth / 2), Math.floor(window.innerHeight / 2));
-        const bloomPass = new THREE.UnrealBloomPass(bloomRes, 0.65, 0.45, 0.85);
+        const bloomPass = new THREE.UnrealBloomPass(bloomRes, 0.48, 0.40, 0.85);
         const composer = new THREE.EffectComposer(renderer);
         composer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
         composer.addPass(renderScene);
@@ -2349,8 +2447,8 @@
             const ctx = sunCanvas.getContext('2d');
 
             const grad = ctx.createLinearGradient(0, 0, 0, 512);
-            grad.addColorStop(0, '#fff477');    // Radiant golden yellow at top
-            grad.addColorStop(0.35, '#ffaa00'); // Warm sunset amber
+            grad.addColorStop(0, '#ffd043');    // Warm golden amber at top
+            grad.addColorStop(0.35, '#ff9900'); // Warm sunset amber
             grad.addColorStop(0.65, '#ff2e63'); // Vivid hot magenta
             grad.addColorStop(1, '#9e003a');    // Deep sunset crimson
             ctx.fillStyle = grad;
@@ -2468,7 +2566,7 @@
             tex.repeat.set(3, 60);
             try {
                 tex.anisotropy = renderer.capabilities.getMaxAnisotropy();
-            } catch(e) {}
+            } catch (e) { }
             return tex;
         }
 
@@ -2675,8 +2773,8 @@
         const buildingFacadeTex = createBuildingFacadeTexture();
         const buildingWallMat = new THREE.MeshStandardMaterial({
             map: buildingFacadeTex,
-            roughness: 0.35,
-            metalness: 0.8
+            roughness: 0.85,
+            metalness: 0.1
         });
 
         // Shared neon accent materials for glowing trims, crowns and beacons
@@ -2981,10 +3079,10 @@
         // --- PROCEDURAL CAR (Fallback Generator) ---
         function createProceduralCar(isPlayer = false) {
             const carGroup = new THREE.Group();
-            const carColor = isPlayer ? 0x00d4ff : [0xff0055, 0xffaa00, 0x00e5ff, 0x9d00ff][Math.floor(Math.random() * 4)];
-            const bodyMat = new THREE.MeshStandardMaterial({ color: carColor, metalness: 0.15, roughness: 0.35, flatShading: false });
-            const glassMat = new THREE.MeshStandardMaterial({ color: 0x111116, metalness: 0.3, roughness: 0.2 });
-            const tireMat = new THREE.MeshStandardMaterial({ color: 0x1a1a1a, roughness: 0.8 });
+            const carColor = isPlayer ? 0x0066ff : [0xff0055, 0xffaa00, 0x222222, 0x888888][Math.floor(Math.random() * 4)];
+            const bodyMat = new THREE.MeshStandardMaterial({ color: carColor, metalness: 0.9, roughness: 0.1, flatShading: true });
+            const glassMat = new THREE.MeshStandardMaterial({ color: 0x000000, metalness: 0.9, roughness: 0.1 });
+            const tireMat = new THREE.MeshStandardMaterial({ color: 0x020202, roughness: 0.9 });
 
             const baseGeo = new THREE.BoxGeometry(2.2, 0.65, 4.6);
             const base = new THREE.Mesh(baseGeo, bodyMat);
@@ -3080,15 +3178,6 @@
                         const mats = Array.isArray(child.material) ? child.material : [child.material];
                         mats.forEach(mat => {
                             mat.side = THREE.DoubleSide;
-                            // Ensure original vibrant car colors, decals, and liveries pop brilliantly:
-                            // Low metalness + gentle matte roughness lets diffuse paint show without white glare or dark shadows
-                            if (mat.metalness !== undefined) {
-                                mat.metalness = Math.min(mat.metalness, 0.02);
-                            }
-                            if (mat.roughness !== undefined) {
-                                mat.roughness = Math.max(mat.roughness, 0.72);
-                            }
-                            mat.needsUpdate = true;
                         });
                     }
                 }
@@ -3335,20 +3424,24 @@
         }
 
         function playRecordBrokenFanfare() {
+            initAudio();
+            loadSfxBuffers();
+            const vol = isEngineMuted ? 0 : sfxVolume * 0.95;
+            if (vol <= 0.001) return;
             try {
-                if (!audioCtx || audioCtx.state !== 'running') return;
-                const now = audioCtx.currentTime;
-                const osc = audioCtx.createOscillator();
-                const gain = audioCtx.createGain();
-                osc.type = 'triangle';
-                osc.frequency.setValueAtTime(587.33, now); // D5
-                osc.frequency.setValueAtTime(880.00, now + 0.1); // A5
-                gain.gain.setValueAtTime(0.15, now);
-                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
-                osc.connect(gain);
-                gain.connect(audioCtx.destination);
-                osc.start(now);
-                osc.stop(now + 0.36);
+                if (audioCtx && audioCtx.state === 'running' && notificationAudioBuffer) {
+                    const src = audioCtx.createBufferSource();
+                    src.buffer = notificationAudioBuffer;
+                    const gain = audioCtx.createGain();
+                    gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+                    src.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    src.start(0);
+                } else {
+                    const clone = notificationFallbackAudio.cloneNode();
+                    clone.volume = Math.min(1.0, vol);
+                    clone.play().catch(() => { });
+                }
             } catch (e) { }
         }
 
@@ -3426,6 +3519,7 @@
 
         function selectCar(id) {
             selectedKartId = id;
+            try { localStorage.setItem('horizon_selected_car', id.toString()); } catch (e) { }
             const kart = KARTS.find(k => k.id === id);
             if (!kart) return;
 
@@ -3762,7 +3856,7 @@
                 pauseScreen.classList.remove('hidden');
                 const pIcon = document.getElementById('pause-btn-icon');
                 const pText = document.getElementById('pause-btn-text');
-                if (pIcon) pIcon.innerText = '▶';
+                if (pIcon) pIcon.innerHTML = SVG_ICONS.play;
                 if (pText) pText.innerText = 'PLAY';
                 stopEngineSound();
             } else if (gameState === 'paused') {
@@ -3770,7 +3864,7 @@
                 pauseScreen.classList.add('hidden');
                 const pIcon = document.getElementById('pause-btn-icon');
                 const pText = document.getElementById('pause-btn-text');
-                if (pIcon) pIcon.innerText = '⏸';
+                if (pIcon) pIcon.innerHTML = SVG_ICONS.pause;
                 if (pText) pText.innerText = 'PAUSE';
                 startEngineSound();
                 clock.getDelta(); // Prevent delta-time jump upon resume
@@ -4156,17 +4250,17 @@
             const isFs = !!document.fullscreenElement;
             const fsIcon = document.getElementById('fs-btn-icon');
             const fsText = document.getElementById('fs-btn-text');
-            if (fsIcon) fsIcon.innerText = isFs ? '✕' : '⛶';
-            if (fsText) fsText.innerText = isFs ? 'EXIT FULL' : 'FULLSCREEN';
+            if (fsIcon) fsIcon.innerHTML = isFs ? SVG_ICONS.fsExit : SVG_ICONS.fsExpand;
+            if (fsText) fsText.innerText = isFs ? 'EXIT' : 'FULLSCREEN';
         }
 
         // If page loaded with fullscreen=1 query parameter, attempt to restore fullscreen
         if (window.location.search.includes('fullscreen=1') && !document.fullscreenElement) {
             const req = document.documentElement.requestFullscreen ||
-                        document.documentElement.webkitRequestFullscreen ||
-                        document.documentElement.msRequestFullscreen;
+                document.documentElement.webkitRequestFullscreen ||
+                document.documentElement.msRequestFullscreen;
             if (req) {
-                req.call(document.documentElement).then(updateFullscreenBtnLabel).catch(() => {});
+                req.call(document.documentElement).then(updateFullscreenBtnLabel).catch(() => { });
             }
         }
 
@@ -4244,7 +4338,10 @@
             carSelectScreen.classList.add('hidden');
             gameOverScreen.classList.add('hidden');
             pauseScreen.classList.add('hidden');
-            pauseToggleBtn.innerText = '⏸️ PAUSE';
+            const pIcon = document.getElementById('pause-btn-icon');
+            const pText = document.getElementById('pause-btn-text');
+            if (pIcon) pIcon.innerHTML = SVG_ICONS.pause;
+            if (pText) pText.innerText = 'PAUSE';
             gameState = 'playing';
         }
 
@@ -4311,13 +4408,6 @@
 
                 if (player.position.x > bounds) { player.position.x = bounds; playerVelocityX = 0; }
                 if (player.position.x < -bounds) { player.position.x = -bounds; playerVelocityX = 0; }
-
-                // Dynamic light follows player vehicle to keep body paint & details brilliantly lit
-                if (playerCarLight && player) {
-                    playerCarLight.position.x = player.position.x;
-                    playerCarLight.target.position.set(player.position.x, 0.5, player.position.z - 4);
-                    playerCarLight.target.updateMatrixWorld();
-                }
 
                 // Plane / Spaceship flight movement (managed by settings above)
                 player.rotation.z = -playerVelocityX * PLANE_ROLL_BANK;
@@ -4505,7 +4595,7 @@
                                 if (crashCard) crashCard.insertBefore(crashBadgeEl, crashCard.children[2]);
                             }
                             const lastBeaten = brokenRivalsInRun[brokenRivalsInRun.length - 1];
-                            crashBadgeEl.innerText = `🏆 RECORD BREAKER: You beat ${lastBeaten.name} (${lastBeaten.score} PTS)!`;
+                            crashBadgeEl.innerText = `RECORD BREAKER: You beat ${lastBeaten.name} (${lastBeaten.score} PTS)!`;
                             crashBadgeEl.style.display = 'block';
                         } else if (crashBadgeEl) {
                             crashBadgeEl.style.display = 'none';
@@ -4598,7 +4688,7 @@
                     badge.style.transition = 'opacity 0.5s ease';
                     document.body.appendChild(badge);
                 }
-                badge.innerText = `🎥 CAM SETTINGS: Z = ${BASE_CAM_Z} | Y = ${BASE_CAM_Y} | FOV = ${BASE_CAM_FOV}`;
+                badge.innerText = `CAM SETTINGS: Z = ${BASE_CAM_Z} | Y = ${BASE_CAM_Y} | FOV = ${BASE_CAM_FOV}`;
                 badge.style.opacity = '1';
                 clearTimeout(window._camBadgeTimer);
                 window._camBadgeTimer = setTimeout(() => {

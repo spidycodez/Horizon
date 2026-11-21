@@ -1127,9 +1127,9 @@
 
             <!-- Feature Badges -->
             <div class="feature-pills">
-                <div class="pill"><span>★</span> 10 FUTURISTIC HYPERCARS</div>
-                <div class="pill"><span>★</span> 300+ KM/H OVERDRIVE</div>
-                <div class="pill"><span>★</span> DUAL PC & TOUCH</div>
+                <div class="pill"><span>//</span> 10 FUTURISTIC HYPERCARS</div>
+                <div class="pill"><span>//</span> 300+ KM/H OVERDRIVE</div>
+                <div class="pill"><span>//</span> DUAL PC & TOUCH</div>
             </div>
         </section>
 
@@ -1409,10 +1409,7 @@
                 const isCurrentUser = (entry.name.toUpperCase() === currentUser);
                 row.className = `leaderboard-row ${rankClass} ${isCurrentUser ? 'current-user-row' : ''}`;
 
-                let rankBadge = `${rank}`;
-                if (rank === 1) rankBadge = '🥇';
-                else if (rank === 2) rankBadge = '🥈';
-                else if (rank === 3) rankBadge = '🥉';
+                let rankBadge = `#${rank}`;
 
                 row.innerHTML = `
                     <div class="lb-left">
@@ -1637,25 +1634,41 @@
         // Initialize state on load
         refreshUI();
 
-        // --- SATISFYING CYBERPUNK UI BUTTON SOUNDS ---
+        // --- SATISFYING CYBERPUNK UI BUTTON SOUNDS (select.mp3) ---
         let uiAudioCtx = null;
+        let homeSelectBuffer = null;
+        const homeSelectFallback = new Audio('game assets/select.mp3');
+        homeSelectFallback.preload = 'auto';
+
+        function loadHomeSfx() {
+            if (!uiAudioCtx || homeSelectBuffer) return;
+            fetch('game assets/select.mp3')
+                .then(res => res.arrayBuffer())
+                .then(buf => uiAudioCtx.decodeAudioData(buf))
+                .then(decoded => { homeSelectBuffer = decoded; })
+                .catch(() => {});
+        }
+
         function playHomeClickSound() {
             if (!uiAudioCtx) {
                 try { uiAudioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { return; }
             }
             if (uiAudioCtx.state === 'suspended') uiAudioCtx.resume();
+            loadHomeSfx();
             try {
-                const osc = uiAudioCtx.createOscillator();
-                const gain = uiAudioCtx.createGain();
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(1100, uiAudioCtx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(2200, uiAudioCtx.currentTime + 0.04);
-                gain.gain.setValueAtTime(0.2, uiAudioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.001, uiAudioCtx.currentTime + 0.05);
-                osc.connect(gain);
-                gain.connect(uiAudioCtx.destination);
-                osc.start();
-                osc.stop(uiAudioCtx.currentTime + 0.055);
+                if (homeSelectBuffer) {
+                    const src = uiAudioCtx.createBufferSource();
+                    src.buffer = homeSelectBuffer;
+                    const gain = uiAudioCtx.createGain();
+                    gain.gain.setValueAtTime(0.85, uiAudioCtx.currentTime);
+                    src.connect(gain);
+                    gain.connect(uiAudioCtx.destination);
+                    src.start(0);
+                } else {
+                    const clone = homeSelectFallback.cloneNode();
+                    clone.volume = 0.85;
+                    clone.play().catch(() => {});
+                }
             } catch (e) { }
         }
 

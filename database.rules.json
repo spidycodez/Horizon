@@ -1,0 +1,20 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "leaderboard": {
+      ".read": true,
+      "$pilotId": {
+        ".write": "newData.exists() && (!data.exists() || newData.child('score').val() >= data.child('score').val())",
+        ".validate": "newData.hasChildren(['name', 'score', 'isBot']) && newData.child('name').isString() && newData.child('name').val().length <= 25 && newData.child('score').isNumber() && newData.child('score').val() >= 0 && newData.child('score').val() <= 1000000 && newData.child('isBot').isBoolean()"
+      }
+    },
+    "users": {
+      "$pilotId": {
+        ".read": true,
+        ".write": "!data.exists() || (data.exists() && newData.exists())",
+        ".validate": "newData.hasChildren(['highestScore', 'gamesPlayed']) && newData.child('highestScore').isNumber() && newData.child('highestScore').val() >= 0 && newData.child('highestScore').val() <= 1000000 && newData.child('gamesPlayed').isNumber() && (!newData.hasChild('password') || newData.child('password').isString())"
+      }
+    }
+  }
+}

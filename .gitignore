@@ -55,12 +55,21 @@ temp/
 
 # --- Environment & Credentials ---
 .env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
+.env.*
+*.env
+firebase-config.js
+firebase-config.local.js
+serviceAccountKey*.json
+*credential*.json
+google-services.json
 *.pem
 *.key
+*.cert
+*.pfx
+
+# Scratch & Dev Tools
+scratch/
+.system_generated/
 
 # --- Dependencies & Build Output ---
 node_modules/
@@ -85,6 +94,22 @@ preview_*.png
 !game assets/*.jpg
 !game assets/*.mp3
 !*.html
-!*.js
+!three.min.js
+!GLTFLoader.js
+!firebase-config.example.js
 !*.jpg
 !*.png
+
+# --- Strictly Enforce Secret & Key Exclusions (Evaluated Last) ---
+firebase-config.js
+firebase-config.local.js
+.env
+.env.*
+*.env
+serviceAccountKey*.json
+*credential*.json
+google-services.json
+*.pem
+*.key
+*.cert
+*.pfx

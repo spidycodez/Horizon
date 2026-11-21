@@ -3161,55 +3161,50 @@
         // --- CRYPTOGRAPHIC SESSION INTEGRITY & ANTI-CHEAT ENGINE ---
         // Protects against client-side memory tampering, speed hacks, and simulated impossible scores
         const SecurityGuard = (function() {
-            let _salt = Math.floor(Math.random() * 0xFFFFFF) + 0xABCDE;
-            let _encScore = 0 ^ _salt;
             let _sessionStartTime = 0;
+            let _shadowScore = 0;
             let _frameCount = 0;
             let _tampered = false;
 
             return {
                 startSession() {
-                    _salt = Math.floor(Math.random() * 0xFFFFFF) + 0xABCDE;
-                    _encScore = 0 ^ _salt;
                     _sessionStartTime = performance.now();
+                    _shadowScore = 0;
                     _frameCount = 0;
                     _tampered = false;
                 },
                 update(currentSpeed, dt) {
                     if (_tampered) return;
                     _frameCount++;
-                    // Encrypted dual-layer score accumulation
-                    const deltaScore = currentSpeed * 0.1 * dt;
-                    const prevScore = (_encScore ^ _salt);
-                    _encScore = Math.round((prevScore + deltaScore) * 100) ^ _salt;
+                    _shadowScore += currentSpeed * 0.1 * dt;
                 },
                 getScore() {
-                    if (_tampered) return 0;
-                    return Math.floor((_encScore ^ _salt) / 100);
+                    return Math.floor(_shadowScore);
                 },
                 verifySubmission(submittedScore) {
                     if (_tampered) return false;
                     if (_sessionStartTime === 0) return false;
 
                     const elapsedSec = (performance.now() - _sessionStartTime) / 1000;
-                    if (elapsedSec < 1.0 && submittedScore > 10) {
+                    if (elapsedSec < 1.0 && submittedScore > 15) {
+                        console.warn("[ANTI-CHEAT ALERT] Impossible score under 1s:", submittedScore);
                         _tampered = true;
                         return false;
                     }
 
-                    // Physical ceiling: At max terminal speed (~4.0), 60 FPS * 0.1 * 4.0 = 24 pts/sec.
-                    // Allowing generous 40 pts/sec ceiling for frame spikes.
-                    const maxPossibleScore = Math.max(60, Math.floor(elapsedSec * 40));
+                    // Physical speed limit check: At max terminal speed (~4.0), 60 FPS * 0.1 * 4.0 = 24 pts/sec.
+                    // Generous 45 pts/sec ceiling to accommodate high refresh-rate monitors or frame spikes.
+                    const maxPossibleScore = Math.max(80, Math.floor(elapsedSec * 45));
                     if (submittedScore > maxPossibleScore) {
-                        console.warn(`[SECURITY ALERT] Submitted score ${submittedScore} exceeds physical limit ${maxPossibleScore} for ${elapsedSec.toFixed(1)}s`);
+                        console.warn(`[ANTI-CHEAT ALERT] Submitted score ${submittedScore} exceeds physical limit ${maxPossibleScore} for ${elapsedSec.toFixed(1)}s`);
                         _tampered = true;
                         return false;
                     }
 
-                    // Compare with internal encrypted accumulator
-                    const internalScore = Math.floor((_encScore ^ _salt) / 100);
-                    if (Math.abs(submittedScore - internalScore) > 25) {
-                        console.warn(`[SECURITY ALERT] Memory mismatch: submitted ${submittedScore} vs encrypted ${internalScore}`);
+                    // Verify consistency with internal shadow score
+                    const expected = Math.floor(_shadowScore);
+                    if (Math.abs(submittedScore - expected) > 10) {
+                        console.warn(`[ANTI-CHEAT ALERT] Memory mismatch: submitted ${submittedScore} vs recorded ${expected}`);
                         _tampered = true;
                         return false;
                     }
@@ -3522,7 +3517,7 @@
                 speed += 0.0003 * dt;
                 score += speed * 0.1 * dt;
                 SecurityGuard.update(speed, dt);
-                const currentScorePts = SecurityGuard.getScore();
+                const currentScorePts = Math.floor(score);
                 uiScore.innerText = currentScorePts;
                 uiSpeed.innerText = Math.floor(speed * 120);
 

@@ -59,7 +59,8 @@
             flex-wrap: nowrap;
             padding: 8px 16px;
             box-sizing: border-box;
-            z-index: 999999 !important; /* Top-most layer across the entire page */
+            z-index: 999999 !important;
+            /* Top-most layer across the entire page */
         }
 
         .hud-group {
@@ -266,7 +267,8 @@
         -------------------------------------------------- */
         .tap-steering-container {
             position: fixed;
-            top: 48px; /* Starts below the top bar so it NEVER intercepts top button touches! */
+            top: 48px;
+            /* Starts below the top bar so it NEVER intercepts top button touches! */
             left: 0;
             right: 0;
             bottom: 0;
@@ -1165,6 +1167,7 @@
         -------------------------------------------------- */
         @media (max-width: 950px),
         (max-height: 540px) {
+
             /* Fixed Top Bar on Mobile - Topmost z-index, never wraps, fixed positions, compact sizing */
             #top-bar {
                 padding: 4px 8px !important;
@@ -1206,7 +1209,8 @@
                 letter-spacing: 0.5px !important;
             }
 
-            .pilot-val, .score-val {
+            .pilot-val,
+            .score-val {
                 min-width: auto !important;
             }
 
@@ -1266,7 +1270,8 @@
         @media (max-height: 540px) {
             .screen {
                 padding: 4px 8px !important;
-                overflow: hidden !important; /* Zero scrolling needed! */
+                overflow: hidden !important;
+                /* Zero scrolling needed! */
                 justify-content: center !important;
             }
 
@@ -1407,7 +1412,8 @@
             }
 
             .setting-hint {
-                display: none !important; /* Hide verbose hints in landscape so RESUME fits without scrolling */
+                display: none !important;
+                /* Hide verbose hints in landscape so RESUME fits without scrolling */
             }
 
             .reset-cam-container {
@@ -1533,7 +1539,7 @@
                 letter-spacing: 1.5px;
             }
         }
-    
+
         /* --------------------------------------------------
            IN-GAME RECORD BROKEN POPUP (SIMPLE, NO GLOW, WHITE & YELLOW ONLY)
         -------------------------------------------------- */
@@ -1569,21 +1575,27 @@
             font-size: 1.35rem;
             font-weight: 700;
             letter-spacing: 2px;
-            color: #FFFFFF; /* Pure Clean White */
+            color: #FFFFFF;
+            /* Pure Clean White */
             text-transform: uppercase;
-            text-shadow: none !important; /* NO GLOW */
+            text-shadow: none !important;
+            /* NO GLOW */
         }
 
         .record-rival-val {
-            color: #FFD700; /* Pure Clean Yellow */
+            color: #FFD700;
+            /* Pure Clean Yellow */
             font-weight: 800;
-            text-shadow: none !important; /* NO GLOW */
+            text-shadow: none !important;
+            /* NO GLOW */
         }
 
         .record-score-val {
-            color: #FFD700; /* Pure Clean Yellow */
+            color: #FFD700;
+            /* Pure Clean Yellow */
             font-weight: 700;
-            text-shadow: none !important; /* NO GLOW */
+            text-shadow: none !important;
+            /* NO GLOW */
         }
 
         @media (max-width: 768px) {
@@ -1592,12 +1604,12 @@
                 white-space: normal;
                 max-width: 90vw;
             }
+
             .record-text-line {
                 font-size: 1.05rem;
                 letter-spacing: 1px;
             }
         }
-
     </style>
     <!-- Three.js and Post-Processing Libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -1632,10 +1644,12 @@
         </div>
     </div>
 
-    
+
     <!-- TOP-5 RECORD BROKEN ALERT (SIMPLE TEXT-ONLY, NO BACKGROUND, NO GLOW, WHITE & YELLOW ONLY) -->
     <div id="record-broken-popup" class="record-broken-popup" style="display: none; opacity: 0;">
-        <div class="record-text-line">RECORD BEATEN: <span id="record-rival-name" class="record-rival-val">---</span> <span id="record-rival-score" class="record-score-val">(0 PTS)</span></div>
+        <div class="record-text-line">RECORD BEATEN: <span id="record-rival-name" class="record-rival-val">---</span>
+            <span id="record-rival-score" class="record-score-val">(0 PTS)</span>
+        </div>
     </div>
 
     <canvas id="game-canvas"></canvas>
@@ -1905,6 +1919,26 @@
             <input type="range" id="cam-height-slider" min="1.8" max="2.6" step="0.05" value="2.2" class="neon-slider">
             <div class="setting-hint">Limited range: 1.8m (Low) &bull; 2.2m (Standard) &bull; 2.6m (High)</div>
 
+            <div class="setting-spacer"></div>
+
+            <!-- Gyroscope Control Sensitivity Setting -->
+            <div class="setting-row">
+                <span>GYRO SENSITIVITY:</span>
+                <span id="gyro-sens-value" style="color: #00F0FF; font-weight: bold;">100%</span>
+            </div>
+            <input type="range" id="gyro-sens-slider" min="30" max="250" step="5" value="100" class="neon-slider">
+            <div class="setting-hint">30% = Gentle Tilt &bull; 100% = Standard &bull; 250% = Ultra Fast</div>
+
+            <div class="setting-spacer"></div>
+
+            <!-- SFX Volume Setting -->
+            <div class="setting-row">
+                <span>SFX VOLUME:</span>
+                <span id="sfx-vol-value" style="color: #00FF88; font-weight: bold;">80%</span>
+            </div>
+            <input type="range" id="sfx-vol-slider" min="0" max="100" step="5" value="80" class="neon-slider">
+            <div class="setting-hint">0% = Muted &bull; 50% = Balanced &bull; 100% = Max Audio</div>
+
             <div class="reset-cam-container">
                 <button id="reset-cam-btn" type="button" class="btn-reset-cam">DEFAULT CAMERA (6.5m / 2.2m)</button>
             </div>
@@ -1954,6 +1988,11 @@
         // Engine volume: reduced from 0.40 to 0.20 as requested
         const ENGINE_REDUCED_VOLUME = 0.20;
         let isEngineMuted = (localStorage.getItem('outrun_engine_muted') === 'true');
+        let sfxVolume = 0.80;
+        try {
+            const savedSfx = localStorage.getItem('horizon_sfx_volume');
+            if (savedSfx !== null) sfxVolume = Math.min(1.0, Math.max(0.0, parseFloat(savedSfx)));
+        } catch (e) { }
 
         // UI Click Sound Function for all game buttons
         function playUiClickSound() {
@@ -2023,7 +2062,7 @@
                     audioCtx.resume();
                 }
                 masterGain = audioCtx.createGain();
-                masterGain.gain.value = 0.45;
+                masterGain.gain.value = isEngineMuted ? 0 : (sfxVolume * 0.55);
                 masterGain.connect(audioCtx.destination);
 
                 // RESTORED EXACT ORIGINAL ENGINE SOUND (Sawtooth + 800Hz Lowpass)
@@ -2074,6 +2113,10 @@
             if (engineGain && audioCtx) {
                 const targetVolume = isEngineMuted ? 0 : ENGINE_REDUCED_VOLUME;
                 engineGain.gain.setTargetAtTime(targetVolume, audioCtx.currentTime, 0.15);
+            }
+            if (masterGain && audioCtx) {
+                const targetGain = isEngineMuted ? 0 : (sfxVolume * 0.55);
+                masterGain.gain.setTargetAtTime(targetGain, audioCtx.currentTime, 0.05);
             }
         }
 
@@ -2247,7 +2290,7 @@
         skyCtx.fillRect(0, 0, 2, 512);
         scene.background = new THREE.CanvasTexture(skyCanvas);
 
-        scene.fog = new THREE.FogExp2(0x180520, 0.0035);
+        scene.fog = new THREE.Fog(0x20052a, 60, 320);
 
         // ==========================================
         // CAMERA TUNING CONTROLS (Edit these values!)
@@ -2262,26 +2305,33 @@
             if (!isNaN(initZ)) BASE_CAM_Z = Math.min(7.5, Math.max(5.5, initZ));
             const initY = parseFloat(localStorage.getItem('horizon_cam_height'));
             if (!isNaN(initY)) BASE_CAM_Y = Math.min(2.6, Math.max(1.8, initY));
-        } catch(e) {}
+        } catch (e) { }
 
         const camera = new THREE.PerspectiveCamera(BASE_CAM_FOV, window.innerWidth / window.innerHeight, 0.1, 1000);
         camera.position.set(0, BASE_CAM_Y, BASE_CAM_Z);
         camera.lookAt(0, 0.9, -20);
         let camRoll = 0;
 
-        // Soft Cinematic Twilight Ambient Lighting (No harsh glare)
-        const ambientLight = new THREE.AmbientLight(0x2e1a3c, 0.90);
+        // Bright Clean Ambient Lighting (Evenly illuminates vehicles from all directions in their true original colors)
+        const ambientLight = new THREE.AmbientLight(0xffffff, 1.20);
         scene.add(ambientLight);
 
-        // Soft Sunset Directional Light (Warm dusk tone - balanced intensity)
-        const dirLight = new THREE.DirectionalLight(0xff7542, 0.95);
+        // Soft Sunset Directional Light (Warm dusk tone from horizon)
+        const dirLight = new THREE.DirectionalLight(0xff8550, 0.55);
         dirLight.position.set(0, 45, -220);
         scene.add(dirLight);
 
-        // Soft fill light for vehicle details and road contours
-        const rearLight = new THREE.DirectionalLight(0x7c5894, 0.65);
-        rearLight.position.set(0, 15, 25);
-        scene.add(rearLight);
+        // Dedicated Vehicle Follow Light (Gently illuminates player car's back, roof, and sides without blinding white glare)
+        const playerCarLight = new THREE.DirectionalLight(0xffffff, 0.45);
+        playerCarLight.position.set(0, 14, 12);
+        playerCarLight.target.position.set(0, 0.5, 0);
+        scene.add(playerCarLight);
+        scene.add(playerCarLight.target);
+
+        // Highway & Traffic Fill Light
+        const roadFillLight = new THREE.DirectionalLight(0xffffff, 0.40);
+        roadFillLight.position.set(0, 15, 20);
+        scene.add(roadFillLight);
 
         // Bloom Post-Processing (Smooth velvety neon aura without harsh glare or grain)
         const renderScene = new THREE.RenderPass(scene, camera);
@@ -2325,55 +2375,66 @@
         }
         scene.add(createRetroSun());
 
-        // --- SYNTHWAVE ENVIRONMENT WIREFRAME GRID (EXACTLY MATCHING IMAGE 5) ---
-        // Generates crisp neon magenta/pink grid lines over pitch-black floor squares.
-        // Uses a high-res procedural canvas texture with anisotropic filtering and seamless UV scrolling.
-        function createSynthwaveGridTexture() {
-            const canvas = document.createElement('canvas');
-            canvas.width = 256; canvas.height = 256;
-            const ctx = canvas.getContext('2d');
+        // --- SYNTHWAVE SIDES WIREFRAME GRID WITH SOLID BLACK SQUARES (MATCHING REFERENCE IMAGE) ---
+        const GRID_STEP = 10.0; // 10 units spacious grid spacing matching reference
+        function createSynthwaveLineGrid() {
+            const size = 500;
+            const step = GRID_STEP;
+            const halfSize = size / 2;
+            const roadHalfWidth = 11.2;
 
-            // 1. Solid Pitch-Black Floor Square (Matches Image 5 reference exactly!)
-            ctx.fillStyle = '#010003';
-            ctx.fillRect(0, 0, 256, 256);
+            const vertices = [];
+            const colors = [];
 
-            // 2. Outer Soft Neon Pink Glow halo
-            ctx.strokeStyle = 'rgba(255, 0, 128, 0.35)';
-            ctx.lineWidth = 14;
-            ctx.strokeRect(0, 0, 256, 256);
+            // Vivid synthwave neon magenta/pink & violet lines
+            const colorPink = new THREE.Color(0xff1493);   // Glowing Hot Synthwave Pink
+            const colorPurple = new THREE.Color(0xa000f0); // Vivid Neon Purple
 
-            // 3. Vibrant Neon Pink / Magenta Synthwave Grid Border
-            ctx.strokeStyle = '#ff0080';
-            ctx.lineWidth = 6;
-            ctx.strokeRect(0, 0, 256, 256);
+            // 1. Z lines (parallel to road, receding into distance)
+            for (let x = -halfSize; x <= halfSize; x += step) {
+                if (Math.abs(x) < roadHalfWidth) continue;
+                const col = (Math.abs(x) < roadHalfWidth + 3) ? colorPurple : colorPink;
+                vertices.push(x, -0.14, -halfSize, x, -0.14, halfSize);
+                colors.push(col.r, col.g, col.b, col.r, col.g, col.b);
+            }
 
-            // 4. Intense Core Laser Wireframe Line (Glowing Hot Pink / White)
-            ctx.strokeStyle = '#ffaae0';
-            ctx.lineWidth = 2;
-            ctx.strokeRect(0, 0, 256, 256);
+            // 2. X lines (perpendicular across landscape)
+            for (let z = -halfSize; z <= halfSize; z += step) {
+                const col = colorPink;
+                // Left side
+                vertices.push(-halfSize, -0.14, z, -roadHalfWidth, -0.14, z);
+                colors.push(col.r, col.g, col.b, col.r, col.g, col.b);
+                // Right side
+                vertices.push(roadHalfWidth, -0.14, z, halfSize, -0.14, z);
+                colors.push(col.r, col.g, col.b, col.r, col.g, col.b);
+            }
 
-            const tex = new THREE.CanvasTexture(canvas);
-            tex.wrapS = THREE.RepeatWrapping;
-            tex.wrapT = THREE.RepeatWrapping;
-            // 240 units width / 5 units per square = 48 squares across
-            // 600 units depth / 5 units per square = 120 squares along road
-            tex.repeat.set(48, 120);
-            try {
-                tex.anisotropy = renderer.capabilities.getMaxAnisotropy();
-            } catch(e) {}
-            return tex;
+            const geo = new THREE.BufferGeometry();
+            geo.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+            geo.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+
+            const mat = new THREE.LineBasicMaterial({
+                vertexColors: true,
+                transparent: true,
+                opacity: 0.85,
+                depthWrite: false
+            });
+            return new THREE.LineSegments(geo, mat);
         }
 
-        const gridTex = createSynthwaveGridTexture();
-        const sideGroundMat = new THREE.MeshBasicMaterial({
-            map: gridTex,
-            fog: true
-        });
+        const synthwaveGrid = createSynthwaveLineGrid();
+        scene.add(synthwaveGrid);
 
-        // Left & Right Ground Planes (Leaves the central road corridor x: -11 to +11 100% clean asphalt!)
+        // Solid Pitch-Black Ground Floor Underneath (Ensures middle square parts are pitch black!)
         const groundLength = 600;
         const groundWidth = 240;
         const sideGroundGeo = new THREE.PlaneGeometry(groundWidth, groundLength);
+        const sideGroundMat = new THREE.MeshStandardMaterial({
+            color: 0x020106, // Deep pitch-black floor
+            roughness: 0.95,
+            metalness: 0.05,
+            depthWrite: true
+        });
 
         const leftSideGround = new THREE.Mesh(sideGroundGeo, sideGroundMat);
         leftSideGround.rotation.x = -Math.PI / 2;
@@ -2920,10 +2981,10 @@
         // --- PROCEDURAL CAR (Fallback Generator) ---
         function createProceduralCar(isPlayer = false) {
             const carGroup = new THREE.Group();
-            const carColor = isPlayer ? 0x0066ff : [0xff0055, 0xffaa00, 0x222222, 0x888888][Math.floor(Math.random() * 4)];
-            const bodyMat = new THREE.MeshStandardMaterial({ color: carColor, metalness: 0.9, roughness: 0.1, flatShading: true });
-            const glassMat = new THREE.MeshStandardMaterial({ color: 0x000000, metalness: 0.9, roughness: 0.1 });
-            const tireMat = new THREE.MeshStandardMaterial({ color: 0x020202, roughness: 0.9 });
+            const carColor = isPlayer ? 0x00d4ff : [0xff0055, 0xffaa00, 0x00e5ff, 0x9d00ff][Math.floor(Math.random() * 4)];
+            const bodyMat = new THREE.MeshStandardMaterial({ color: carColor, metalness: 0.15, roughness: 0.35, flatShading: false });
+            const glassMat = new THREE.MeshStandardMaterial({ color: 0x111116, metalness: 0.3, roughness: 0.2 });
+            const tireMat = new THREE.MeshStandardMaterial({ color: 0x1a1a1a, roughness: 0.8 });
 
             const baseGeo = new THREE.BoxGeometry(2.2, 0.65, 4.6);
             const base = new THREE.Mesh(baseGeo, bodyMat);
@@ -3016,7 +3077,19 @@
                     child.castShadow = true;
                     child.receiveShadow = true;
                     if (child.material) {
-                        child.material.side = THREE.DoubleSide;
+                        const mats = Array.isArray(child.material) ? child.material : [child.material];
+                        mats.forEach(mat => {
+                            mat.side = THREE.DoubleSide;
+                            // Ensure original vibrant car colors, decals, and liveries pop brilliantly:
+                            // Low metalness + gentle matte roughness lets diffuse paint show without white glare or dark shadows
+                            if (mat.metalness !== undefined) {
+                                mat.metalness = Math.min(mat.metalness, 0.02);
+                            }
+                            if (mat.roughness !== undefined) {
+                                mat.roughness = Math.max(mat.roughness, 0.72);
+                            }
+                            mat.needsUpdate = true;
+                        });
                     }
                 }
             });
@@ -3164,9 +3237,9 @@
                 return window.EOH_FIREBASE_CONFIG;
             }
             try {
-                const _k = [65,73,122,97,83,121,67,110,116,98,97,78,101,79,49,73,76,84,76,51,85,104,118,65,108,108,118,76,54,57,83,77,107,97,103,79,52,74,69];
-                const _u = [104,116,116,112,115,58,47,47,101,110,100,45,111,102,45,104,111,114,105,122,111,110,45,100,101,102,97,117,108,116,45,114,116,100,98,46,102,105,114,101,98,97,115,101,105,111,46,99,111,109];
-                const _p = [101,110,100,45,111,102,45,104,111,114,105,122,111,110];
+                const _k = [65, 73, 122, 97, 83, 121, 67, 110, 116, 98, 97, 78, 101, 79, 49, 73, 76, 84, 76, 51, 85, 104, 118, 65, 108, 108, 118, 76, 54, 57, 83, 77, 107, 97, 103, 79, 52, 74, 69];
+                const _u = [104, 116, 116, 112, 115, 58, 47, 47, 101, 110, 100, 45, 111, 102, 45, 104, 111, 114, 105, 122, 111, 110, 45, 100, 101, 102, 97, 117, 108, 116, 45, 114, 116, 100, 98, 46, 102, 105, 114, 101, 98, 97, 115, 101, 105, 111, 46, 99, 111, 109];
+                const _p = [101, 110, 100, 45, 111, 102, 45, 104, 111, 114, 105, 122, 111, 110];
                 const dec = arr => String.fromCharCode.apply(null, arr);
                 const pId = dec(_p);
                 return {
@@ -3178,7 +3251,7 @@
                     messagingSenderId: "127826316866",
                     appId: "1:127826316866:web:91a1d79dd34f6e570c27db"
                 };
-            } catch(e) {
+            } catch (e) {
                 return null;
             }
         }
@@ -3220,7 +3293,7 @@
 
         function initRivalsToBeat() {
             let allLeaderboard = getLeaderboardData();
-            
+
             // Sync fresh top 5 from Firebase Cloud Database
             if (db) {
                 db.ref('leaderboard').once('value').then(snap => {
@@ -3319,8 +3392,8 @@
                 gameState = 'start';
                 stopEngineSound();
             }
-            const wantsFs = !isFullscreenExplicitlyDisabled();
-            window.location.href = wantsFs ? 'index.html?fullscreen=1' : 'index.html';
+            const isFs = !!document.fullscreenElement;
+            window.location.href = isFs ? 'index.html?fullscreen=1' : 'index.html';
         }
 
         if (startHomeBtn) startHomeBtn.addEventListener('click', returnToHome);
@@ -3596,7 +3669,7 @@
 
         // --- CRYPTOGRAPHIC SESSION INTEGRITY & ANTI-CHEAT ENGINE ---
         // Protects against client-side memory tampering, speed hacks, and simulated impossible scores
-        const SecurityGuard = (function() {
+        const SecurityGuard = (function () {
             let _sessionStartTime = 0;
             let _shadowScore = 0;
             let _frameCount = 0;
@@ -3723,6 +3796,12 @@
             });
         }
 
+        if (window.location.hash.includes('settings')) {
+            if (pauseHeading) pauseHeading.innerText = 'SETTINGS';
+            if (resumeBtn) resumeBtn.innerText = 'CLOSE SETTINGS';
+            pauseScreen.classList.remove('hidden');
+        }
+
         pauseSelectBtn.addEventListener('click', () => {
             pauseScreen.classList.add('hidden');
             carSelectScreen.classList.remove('hidden');
@@ -3787,7 +3866,7 @@
                 try {
                     localStorage.setItem('horizon_cam_distance', BASE_CAM_Z.toString());
                     localStorage.setItem('horizon_cam_height', BASE_CAM_Y.toString());
-                } catch(e) {}
+                } catch (e) { }
             }
         }
 
@@ -3815,6 +3894,62 @@
         if (resetCamBtn) {
             resetCamBtn.addEventListener('click', () => {
                 applyCamSettings(6.5, 2.2);
+            });
+        }
+
+        // --- GYROSCOPE SENSITIVITY SETTING ---
+        const gyroSensSlider = document.getElementById('gyro-sens-slider');
+        const gyroSensValue = document.getElementById('gyro-sens-value');
+        let gyroSensitivity = 1.0;
+        try {
+            const savedGyroSens = parseFloat(localStorage.getItem('horizon_gyro_sensitivity'));
+            if (!isNaN(savedGyroSens)) gyroSensitivity = Math.min(2.5, Math.max(0.3, savedGyroSens));
+        } catch (e) { }
+
+        function applyGyroSens(val, save = true) {
+            gyroSensitivity = Math.min(2.5, Math.max(0.3, parseFloat(val) || 1.0));
+            const percent = Math.round(gyroSensitivity * 100);
+            if (gyroSensSlider) gyroSensSlider.value = percent;
+            if (gyroSensValue) gyroSensValue.innerText = `${percent}%`;
+            if (save) {
+                try {
+                    localStorage.setItem('horizon_gyro_sensitivity', gyroSensitivity.toString());
+                } catch (e) { }
+            }
+        }
+        applyGyroSens(gyroSensitivity, false);
+
+        if (gyroSensSlider) {
+            gyroSensSlider.addEventListener('input', e => {
+                applyGyroSens(parseInt(e.target.value, 10) / 100);
+            });
+        }
+
+        // --- SFX VOLUME SETTING ---
+        const sfxVolSlider = document.getElementById('sfx-vol-slider');
+        const sfxVolValue = document.getElementById('sfx-vol-value');
+        function applySfxVolume(val, save = true) {
+            sfxVolume = Math.min(1.0, Math.max(0.0, parseFloat(val)));
+            const percent = Math.round(sfxVolume * 100);
+            if (sfxVolSlider) sfxVolSlider.value = percent;
+            if (sfxVolValue) sfxVolValue.innerText = `${percent}%`;
+            if (masterGain && audioCtx) {
+                const targetGain = isEngineMuted ? 0 : (sfxVolume * 0.55);
+                masterGain.gain.setTargetAtTime(targetGain, audioCtx.currentTime, 0.05);
+            }
+            if (save) {
+                try {
+                    localStorage.setItem('horizon_sfx_volume', sfxVolume.toString());
+                } catch (e) { }
+            }
+        }
+        applySfxVolume(sfxVolume, false);
+
+        if (sfxVolSlider) {
+            sfxVolSlider.addEventListener('input', e => {
+                const v = parseInt(e.target.value, 10) / 100;
+                if (isEngineMuted && v > 0) setEngineMute(false);
+                applySfxVolume(v);
             });
         }
 
@@ -3849,7 +3984,7 @@
             controlMode = mode;
             try {
                 localStorage.setItem('horizon_control_mode', mode);
-            } catch (e) {}
+            } catch (e) { }
 
             if (ctrlPcBtn) ctrlPcBtn.classList.toggle('active', mode === 'pc');
             if (ctrlTapBtn) ctrlTapBtn.classList.toggle('active', mode === 'tap');
@@ -3967,7 +4102,6 @@
             const start = (e) => {
                 if (gameState !== 'playing') return;
                 if (e.cancelable) e.preventDefault();
-                tryRestoreFullscreen();
                 if (isLeft) activeLeftTouches = 1;
                 else activeRightTouches = 1;
                 updateTapSteeringUI();
@@ -3987,7 +4121,6 @@
             zone.addEventListener('mousedown', (e) => {
                 if (gameState !== 'playing') return;
                 if (e.button === 0) {
-                    tryRestoreFullscreen();
                     if (isLeft) activeLeftTouches = 1;
                     else activeRightTouches = 1;
                     updateTapSteeringUI();
@@ -4015,41 +4148,8 @@
             setControlMode('pc', true);
         }
 
-        // --- FULLSCREEN BY DEFAULT & PERSISTENT TOGGLE ---
+        // --- FULLSCREEN CONTROL (OPT-IN ONLY VIA BUTTON) ---
         const fullscreenBtn = document.getElementById('fullscreen-btn');
-
-        // By default, ALL users on mobile & desktop are in fullscreen mode!
-        // Only if the user explicitly clicked "EXIT FULL" / minimized is it set to 'false'.
-        function isFullscreenExplicitlyDisabled() {
-            return (localStorage.getItem('horizon_persistent_fullscreen') === 'false') ||
-                   (sessionStorage.getItem('horizon_persistent_fullscreen') === 'false');
-        }
-
-        function tryRestoreFullscreen() {
-            if (isFullscreenExplicitlyDisabled()) return;
-            if (!document.fullscreenElement) {
-                const req = document.documentElement.requestFullscreen ||
-                            document.documentElement.webkitRequestFullscreen ||
-                            document.documentElement.msRequestFullscreen;
-                if (req) {
-                    req.call(document.documentElement).then(() => {
-                        updateFullscreenBtnLabel();
-                    }).catch(() => {});
-                }
-            }
-        }
-
-        // Try engaging fullscreen immediately on script execution
-        tryRestoreFullscreen();
-
-        // Listen for ANY user interaction across the entire window to engage fullscreen automatically
-        ['pointerdown', 'touchstart', 'touchend', 'click', 'keydown'].forEach(evt => {
-            window.addEventListener(evt, () => {
-                if (!isFullscreenExplicitlyDisabled() && !document.fullscreenElement) {
-                    tryRestoreFullscreen();
-                }
-            }, { capture: true, passive: true });
-        });
 
         function updateFullscreenBtnLabel() {
             if (!fullscreenBtn) return;
@@ -4060,42 +4160,37 @@
             if (fsText) fsText.innerText = isFs ? 'EXIT FULL' : 'FULLSCREEN';
         }
 
+        // If page loaded with fullscreen=1 query parameter, attempt to restore fullscreen
+        if (window.location.search.includes('fullscreen=1') && !document.fullscreenElement) {
+            const req = document.documentElement.requestFullscreen ||
+                        document.documentElement.webkitRequestFullscreen ||
+                        document.documentElement.msRequestFullscreen;
+            if (req) {
+                req.call(document.documentElement).then(updateFullscreenBtnLabel).catch(() => {});
+            }
+        }
+
         function toggleFullscreen() {
             if (!document.fullscreenElement) {
-                // User wants to re-enter fullscreen
                 const req = document.documentElement.requestFullscreen ||
-                            document.documentElement.webkitRequestFullscreen ||
-                            document.documentElement.msRequestFullscreen;
+                    document.documentElement.webkitRequestFullscreen ||
+                    document.documentElement.msRequestFullscreen;
                 if (req) {
-                    req.call(document.documentElement).then(() => {
-                        updateFullscreenBtnLabel();
-                        localStorage.setItem('horizon_persistent_fullscreen', 'true');
-                        sessionStorage.setItem('horizon_persistent_fullscreen', 'true');
-                    }).catch(err => console.warn(err));
+                    req.call(document.documentElement).then(updateFullscreenBtnLabel).catch(err => console.warn(err));
                 }
             } else {
-                // User explicitly clicked the button to MINIMIZE / EXIT fullscreen
                 const exit = document.exitFullscreen ||
-                             document.webkitExitFullscreen ||
-                             document.msExitFullscreen;
+                    document.webkitExitFullscreen ||
+                    document.msExitFullscreen;
                 if (exit) {
-                    exit.call(document).then(() => {
-                        updateFullscreenBtnLabel();
-                        localStorage.setItem('horizon_persistent_fullscreen', 'false');
-                        sessionStorage.setItem('horizon_persistent_fullscreen', 'false');
-                    }).catch(err => console.warn(err));
+                    exit.call(document).then(updateFullscreenBtnLabel).catch(err => console.warn(err));
                 }
             }
         }
         bindHudButton(fullscreenBtn, toggleFullscreen);
 
-        document.addEventListener('fullscreenchange', () => {
-            updateFullscreenBtnLabel();
-            if (document.fullscreenElement) {
-                localStorage.setItem('horizon_persistent_fullscreen', 'true');
-                sessionStorage.setItem('horizon_persistent_fullscreen', 'true');
-            }
-        });
+        document.addEventListener('fullscreenchange', updateFullscreenBtnLabel);
+        document.addEventListener('webkitfullscreenchange', updateFullscreenBtnLabel);
 
         window.addEventListener('resize', () => {
             const w = window.innerWidth;
@@ -4113,7 +4208,6 @@
         const clock = new THREE.Clock();
 
         function resetGame() {
-            tryRestoreFullscreen();
             initAudio();
             startEngineSound();
 
@@ -4204,7 +4298,7 @@
                 if (keys.ArrowRight || keys.d) steerDir += 1.0;
 
                 if (controlMode === 'gyro' && Math.abs(gyroTilt) > 0.01) {
-                    steerDir += gyroTilt;
+                    steerDir += gyroTilt * gyroSensitivity;
                     steerDir = Math.max(-1.0, Math.min(1.0, steerDir));
                 }
 
@@ -4218,6 +4312,13 @@
                 if (player.position.x > bounds) { player.position.x = bounds; playerVelocityX = 0; }
                 if (player.position.x < -bounds) { player.position.x = -bounds; playerVelocityX = 0; }
 
+                // Dynamic light follows player vehicle to keep body paint & details brilliantly lit
+                if (playerCarLight && player) {
+                    playerCarLight.position.x = player.position.x;
+                    playerCarLight.target.position.set(player.position.x, 0.5, player.position.z - 4);
+                    playerCarLight.target.updateMatrixWorld();
+                }
+
                 // Plane / Spaceship flight movement (managed by settings above)
                 player.rotation.z = -playerVelocityX * PLANE_ROLL_BANK;
                 player.rotation.y = -playerVelocityX * PLANE_YAW_TURN;
@@ -4228,7 +4329,10 @@
 
                 const roadMove = speed * dt;
                 // Seamlessly scroll the synthwave wireframe grid and road asphalt texture
-                gridTex.offset.y -= (roadMove / 5.0);
+                synthwaveGrid.position.z += roadMove;
+                if (synthwaveGrid.position.z > GRID_STEP) {
+                    synthwaveGrid.position.z -= GRID_STEP;
+                }
                 asphaltTex.offset.y -= (roadMove / 10.0);
 
                 for (let i = 0; i < dashedLines.length; i++) {
@@ -4333,7 +4437,7 @@
                                     profiles[currentPilot] = { highestScore: 0, gamesPlayed: 0 };
                                 }
                                 profiles[currentPilot].gamesPlayed = (profiles[currentPilot].gamesPlayed || 0) + 1;
-                                
+
                                 // Ensure it stores ONLY the highest score of the player
                                 if (finalPts > (profiles[currentPilot].highestScore || 0)) {
                                     profiles[currentPilot].highestScore = finalPts;

@@ -12,20 +12,31 @@
             box-sizing: border-box;
         }
 
-        body {
+        html, body {
+            width: 100%;
+            height: 100%;
+            height: 100vh;
+            height: 100dvh;
             margin: 0;
+            padding: 0;
             overflow: hidden;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
             background-color: #10002b;
             font-family: 'Press Start 2P', 'Orbitron', monospace;
             color: #fff;
             user-select: none;
-            image-rendering: pixelated;
+            -webkit-user-select: none;
+            touch-action: none;
         }
 
         #game-canvas {
             display: block;
-            width: 100vw;
-            height: 100vh;
+            width: 100%;
+            height: 100%;
         }
 
         /* --------------------------------------------------
@@ -2212,10 +2223,12 @@
             stencil: false,
             depth: true
         });
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2.0));
         renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.shadowMap.enabled = false; // Disable heavy dynamic shadow passes for 60+ FPS
+        renderer.shadowMap.enabled = false; // Disable heavy dynamic shadow passes for silky 60+ FPS
         renderer.outputEncoding = THREE.sRGBEncoding;
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer.toneMappingExposure = 1.0;
 
         const scene = new THREE.Scene();
 
@@ -2256,24 +2269,24 @@
         camera.lookAt(0, 0.9, -20);
         let camRoll = 0;
 
-        // Evening Twilight Atmosphere Lighting
-        const ambientLight = new THREE.AmbientLight(0x381845, 0.85);
+        // Soft Cinematic Twilight Ambient Lighting (No harsh glare)
+        const ambientLight = new THREE.AmbientLight(0x2e1a3c, 0.90);
         scene.add(ambientLight);
 
-        const dirLight = new THREE.DirectionalLight(0xff7744, 1.3);
+        // Soft Sunset Directional Light (Warm dusk tone - balanced intensity)
+        const dirLight = new THREE.DirectionalLight(0xff7542, 0.95);
         dirLight.position.set(0, 45, -220);
-        dirLight.castShadow = true;
         scene.add(dirLight);
 
-        // Soft rear illumination for player's vehicle body & paint details
-        const rearLight = new THREE.DirectionalLight(0xa585c8, 0.75);
+        // Soft fill light for vehicle details and road contours
+        const rearLight = new THREE.DirectionalLight(0x7c5894, 0.65);
         rearLight.position.set(0, 15, 25);
         scene.add(rearLight);
 
-        // Bloom Post-Processing (Tuned for silky synthwave neon glow without blinding white blobs)
+        // Bloom Post-Processing (Smooth velvety neon aura without harsh glare or grain)
         const renderScene = new THREE.RenderPass(scene, camera);
         const bloomRes = new THREE.Vector2(Math.floor(window.innerWidth / 2), Math.floor(window.innerHeight / 2));
-        const bloomPass = new THREE.UnrealBloomPass(bloomRes, 0.85, 0.35, 0.88);
+        const bloomPass = new THREE.UnrealBloomPass(bloomRes, 0.65, 0.45, 0.85);
         const composer = new THREE.EffectComposer(renderer);
         composer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
         composer.addPass(renderScene);
@@ -2372,12 +2385,41 @@
         rightSideGround.position.set(11 + (groundWidth / 2), -0.16, -100);
         scene.add(rightSideGround);
 
-        // Wet Glossy Asphalt Highway (Reflecting sunset and neon lights)
+        // --- PROCEDURAL SMOOTH HIGHWAY ASPHALT TEXTURE (NO SUN SPECULAR STREAK) ---
+        function createAsphaltTexture() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 128; canvas.height = 128;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#0a090e';
+            ctx.fillRect(0, 0, 128, 128);
+
+            // Subtle fine highway grain for smooth realistic road surface
+            for (let i = 0; i < 280; i++) {
+                const x = Math.random() * 128;
+                const y = Math.random() * 128;
+                const alpha = Math.random() * 0.04;
+                ctx.fillStyle = Math.random() > 0.5 ? `rgba(255, 255, 255, ${alpha})` : `rgba(0, 0, 0, ${alpha * 2})`;
+                ctx.fillRect(x, y, 1.5, 1.5);
+            }
+            const tex = new THREE.CanvasTexture(canvas);
+            tex.wrapS = THREE.RepeatWrapping;
+            tex.wrapT = THREE.RepeatWrapping;
+            tex.repeat.set(3, 60);
+            try {
+                tex.anisotropy = renderer.capabilities.getMaxAnisotropy();
+            } catch(e) {}
+            return tex;
+        }
+
+        const asphaltTex = createAsphaltTexture();
+
+        // Smooth Matte Dark Asphalt Highway (Pure matte = zero specular sun reflection streak!)
         const floorGeo = new THREE.PlaneGeometry(22, groundLength);
         const floorMat = new THREE.MeshStandardMaterial({
-            color: 0x08080c,
-            roughness: 0.22,
-            metalness: 0.70,
+            map: asphaltTex,
+            color: 0x09080e,
+            roughness: 0.96, // High roughness completely diffuses and removes harsh sun glare streak
+            metalness: 0.02, // Low metalness eliminates metallic hotspot
             depthWrite: true
         });
         const floor = new THREE.Mesh(floorGeo, floorMat);
@@ -3277,13 +3319,8 @@
                 gameState = 'start';
                 stopEngineSound();
             }
-            const isFs = (document.fullscreenElement !== null) ||
-                         (localStorage.getItem('horizon_persistent_fullscreen') === 'true');
-            if (isFs) {
-                localStorage.setItem('horizon_persistent_fullscreen', 'true');
-                sessionStorage.setItem('horizon_persistent_fullscreen', 'true');
-            }
-            window.location.href = isFs ? 'index.html?fullscreen=1' : 'index.html';
+            const wantsFs = !isFullscreenExplicitlyDisabled();
+            window.location.href = wantsFs ? 'index.html?fullscreen=1' : 'index.html';
         }
 
         if (startHomeBtn) startHomeBtn.addEventListener('click', returnToHome);
@@ -3978,42 +4015,40 @@
             setControlMode('pc', true);
         }
 
-        // --- FULLSCREEN PERSISTENCE & TOGGLE ---
+        // --- FULLSCREEN BY DEFAULT & PERSISTENT TOGGLE ---
         const fullscreenBtn = document.getElementById('fullscreen-btn');
-        const urlWantsFullscreen = window.location.search.includes('fullscreen=1') ||
-                                   window.location.hash.includes('fullscreen') ||
-                                   (localStorage.getItem('horizon_persistent_fullscreen') === 'true') ||
-                                   (sessionStorage.getItem('horizon_persistent_fullscreen') === 'true');
 
-        if (urlWantsFullscreen) {
-            localStorage.setItem('horizon_persistent_fullscreen', 'true');
-            sessionStorage.setItem('horizon_persistent_fullscreen', 'true');
+        // By default, ALL users on mobile & desktop are in fullscreen mode!
+        // Only if the user explicitly clicked "EXIT FULL" / minimized is it set to 'false'.
+        function isFullscreenExplicitlyDisabled() {
+            return (localStorage.getItem('horizon_persistent_fullscreen') === 'false') ||
+                   (sessionStorage.getItem('horizon_persistent_fullscreen') === 'false');
         }
 
         function tryRestoreFullscreen() {
-            const wantsFs = window.location.search.includes('fullscreen=1') ||
-                            (localStorage.getItem('horizon_persistent_fullscreen') === 'true') ||
-                            (sessionStorage.getItem('horizon_persistent_fullscreen') === 'true');
-            if (wantsFs && !document.fullscreenElement) {
+            if (isFullscreenExplicitlyDisabled()) return;
+            if (!document.fullscreenElement) {
                 const req = document.documentElement.requestFullscreen ||
                             document.documentElement.webkitRequestFullscreen ||
                             document.documentElement.msRequestFullscreen;
                 if (req) {
                     req.call(document.documentElement).then(() => {
-                        if (fullscreenBtn) fullscreenBtn.innerText = '⛶ EXIT FULL';
-                        localStorage.setItem('horizon_persistent_fullscreen', 'true');
-                        sessionStorage.setItem('horizon_persistent_fullscreen', 'true');
+                        updateFullscreenBtnLabel();
                     }).catch(() => {});
                 }
             }
         }
 
-        // Try restoring fullscreen immediately on script execution
+        // Try engaging fullscreen immediately on script execution
         tryRestoreFullscreen();
 
-        // Listen for ANY user interaction across the entire window to engage fullscreen
+        // Listen for ANY user interaction across the entire window to engage fullscreen automatically
         ['pointerdown', 'touchstart', 'touchend', 'click', 'keydown'].forEach(evt => {
-            window.addEventListener(evt, tryRestoreFullscreen, { capture: true, passive: true });
+            window.addEventListener(evt, () => {
+                if (!isFullscreenExplicitlyDisabled() && !document.fullscreenElement) {
+                    tryRestoreFullscreen();
+                }
+            }, { capture: true, passive: true });
         });
 
         function updateFullscreenBtnLabel() {
@@ -4027,6 +4062,7 @@
 
         function toggleFullscreen() {
             if (!document.fullscreenElement) {
+                // User wants to re-enter fullscreen
                 const req = document.documentElement.requestFullscreen ||
                             document.documentElement.webkitRequestFullscreen ||
                             document.documentElement.msRequestFullscreen;
@@ -4038,6 +4074,7 @@
                     }).catch(err => console.warn(err));
                 }
             } else {
+                // User explicitly clicked the button to MINIMIZE / EXIT fullscreen
                 const exit = document.exitFullscreen ||
                              document.webkitExitFullscreen ||
                              document.msExitFullscreen;
@@ -4045,7 +4082,7 @@
                     exit.call(document).then(() => {
                         updateFullscreenBtnLabel();
                         localStorage.setItem('horizon_persistent_fullscreen', 'false');
-                        sessionStorage.removeItem('horizon_persistent_fullscreen');
+                        sessionStorage.setItem('horizon_persistent_fullscreen', 'false');
                     }).catch(err => console.warn(err));
                 }
             }
@@ -4190,8 +4227,9 @@
                 playerBox.setFromCenterAndSize(_tempVecPlayer, playerBoxSize);
 
                 const roadMove = speed * dt;
-                // Seamlessly scroll the synthwave wireframe grid on black squares
+                // Seamlessly scroll the synthwave wireframe grid and road asphalt texture
                 gridTex.offset.y -= (roadMove / 5.0);
+                asphaltTex.offset.y -= (roadMove / 10.0);
 
                 for (let i = 0; i < dashedLines.length; i++) {
                     const dash = dashedLines[i];

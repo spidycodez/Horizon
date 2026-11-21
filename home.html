@@ -560,6 +560,10 @@
             html, body {
                 overflow: hidden !important;
                 height: 100vh !important;
+                height: 100dvh !important;
+                position: fixed !important;
+                inset: 0 !important;
+                width: 100vw !important;
             }
 
             .page-container {
@@ -570,6 +574,7 @@
                 padding: 6px 3vw !important;
                 gap: 14px !important;
                 height: 100vh !important;
+                height: 100dvh !important;
                 box-sizing: border-box !important;
             }
 
@@ -1567,15 +1572,14 @@
             toast.style.color = color || '#FFF8F0';
         }
 
+        function isFullscreenExplicitlyDisabled() {
+            return (localStorage.getItem('horizon_persistent_fullscreen') === 'false') ||
+                   (sessionStorage.getItem('horizon_persistent_fullscreen') === 'false');
+        }
+
         function launchHighway() {
-            const isFs = (document.fullscreenElement !== null) ||
-                         (localStorage.getItem('horizon_persistent_fullscreen') === 'true') ||
-                         (sessionStorage.getItem('horizon_persistent_fullscreen') === 'true');
-            if (isFs) {
-                localStorage.setItem('horizon_persistent_fullscreen', 'true');
-                sessionStorage.setItem('horizon_persistent_fullscreen', 'true');
-            }
-            window.location.href = isFs ? 'racinggame.html?fullscreen=1' : 'racinggame.html';
+            const wantsFs = !isFullscreenExplicitlyDisabled();
+            window.location.href = wantsFs ? 'racinggame.html?fullscreen=1' : 'racinggame.html';
         }
 
         // Event Listeners
@@ -1683,13 +1687,11 @@
         });
 
 
-        // Fullscreen Toggle on Homepage with Persistent State Across Navigation
+        // Fullscreen by Default on Homepage with Toggle Support
         const homeFsBtn = document.getElementById('home-fullscreen-btn');
         function restoreHomeFullscreen() {
-            const wantsFs = window.location.search.includes('fullscreen=1') ||
-                            (localStorage.getItem('horizon_persistent_fullscreen') === 'true') ||
-                            (sessionStorage.getItem('horizon_persistent_fullscreen') === 'true');
-            if (wantsFs && !document.fullscreenElement) {
+            if (isFullscreenExplicitlyDisabled()) return;
+            if (!document.fullscreenElement) {
                 const req = document.documentElement.requestFullscreen ||
                             document.documentElement.webkitRequestFullscreen ||
                             document.documentElement.msRequestFullscreen;
@@ -1701,13 +1703,18 @@
             }
         }
         ['pointerdown', 'touchstart', 'touchend', 'click', 'keydown'].forEach(evt => {
-            window.addEventListener(evt, restoreHomeFullscreen, { capture: true, passive: true });
+            window.addEventListener(evt, () => {
+                if (!isFullscreenExplicitlyDisabled() && !document.fullscreenElement) {
+                    restoreHomeFullscreen();
+                }
+            }, { capture: true, passive: true });
         });
         restoreHomeFullscreen();
 
         if (homeFsBtn) {
             homeFsBtn.addEventListener('click', () => {
                 if (!document.fullscreenElement) {
+                    // Re-enter fullscreen
                     const req = document.documentElement.requestFullscreen ||
                                 document.documentElement.webkitRequestFullscreen ||
                                 document.documentElement.msRequestFullscreen;
@@ -1719,6 +1726,7 @@
                         }).catch(err => console.warn(err));
                     }
                 } else {
+                    // Minimize / Exit fullscreen
                     const exit = document.exitFullscreen ||
                                  document.webkitExitFullscreen ||
                                  document.msExitFullscreen;
@@ -1726,7 +1734,7 @@
                         exit.call(document).then(() => {
                             homeFsBtn.querySelector('span').innerText = 'FULLSCREEN';
                             localStorage.setItem('horizon_persistent_fullscreen', 'false');
-                            sessionStorage.removeItem('horizon_persistent_fullscreen');
+                            sessionStorage.setItem('horizon_persistent_fullscreen', 'false');
                         }).catch(err => console.warn(err));
                     }
                 }

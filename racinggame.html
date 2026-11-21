@@ -47,13 +47,20 @@
         }
 
         #top-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            width: 100%;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            width: 100%;
             pointer-events: none;
-            gap: 16px;
-            flex-wrap: wrap;
+            gap: 12px;
+            flex-wrap: nowrap;
+            padding: 12px 20px;
+            box-sizing: border-box;
+            z-index: 100;
         }
 
         .hud-group {
@@ -998,6 +1005,16 @@
             letter-spacing: 0.8px;
         }
 
+        .setting-spacer {
+            height: 14px;
+        }
+
+        .reset-cam-container {
+            margin-top: 12px;
+            display: flex;
+            justify-content: center;
+        }
+
         .btn-reset-cam {
             background: rgba(255, 255, 255, 0.08);
             border: 1px solid rgba(255, 255, 255, 0.25);
@@ -1105,101 +1122,365 @@
             line-height: 1.5;
         }
 
-        /* Mobile HUD scaling (Phones in Landscape or Small Screens) */
-        @media (max-width: 920px),
+        /* --------------------------------------------------
+           MOBILE RESPONSIVE ZERO-SCROLL HUD & MENU SYSTEM
+           (Fixed Top Buttons, Screen-Adaptive Sizing, Zero-Scroll Viewport)
+        -------------------------------------------------- */
+        @media (max-width: 950px),
         (max-height: 540px) {
             #ui-layer {
-                padding: 10px 14px;
+                padding: 6px 10px;
             }
 
+            /* Fixed Top Bar on Mobile - Never wraps, fixed positions, compact sizing */
             #top-bar {
-                gap: 8px;
+                padding: 4px 8px !important;
+                gap: 4px !important;
+                flex-wrap: nowrap !important;
             }
 
             .hud-group {
-                gap: 6px;
+                gap: 4px !important;
+                flex-shrink: 1;
             }
 
             .hud-pill {
-                padding: 4px 9px;
-                gap: 5px;
-                border-radius: 8px;
+                padding: 2px 7px !important;
+                gap: 4px !important;
+                border-radius: 6px !important;
+                height: 26px !important;
+                box-sizing: border-box !important;
             }
 
             .hud-dot {
-                width: 6px;
-                height: 6px;
+                width: 5px !important;
+                height: 5px !important;
             }
 
             .hud-label {
-                font-size: 0.60rem;
-                letter-spacing: 1px;
+                font-size: 0.52rem !important;
+                letter-spacing: 0.5px !important;
             }
 
             .hud-value {
-                font-size: 0.92rem;
+                font-size: 0.78rem !important;
+                letter-spacing: 0.5px !important;
+            }
+
+            .pilot-val, .score-val {
+                min-width: auto !important;
             }
 
             .hud-control-switch {
-                padding: 2px;
-                gap: 2px;
-                border-radius: 8px;
+                padding: 1px !important;
+                gap: 1px !important;
+                border-radius: 6px !important;
+                height: 26px !important;
+                box-sizing: border-box !important;
             }
 
             .hud-toggle-btn {
-                padding: 4px 8px;
-                font-size: 0.72rem;
-                gap: 4px;
+                padding: 2px 6px !important;
+                font-size: 0.62rem !important;
+                gap: 3px !important;
+                height: 22px !important;
             }
 
             .hud-toggle-btn svg {
-                width: 12px;
-                height: 12px;
+                width: 10px !important;
+                height: 10px !important;
             }
 
             .hud-btn {
-                padding: 5px 10px;
-                font-size: 0.72rem;
-                gap: 5px;
-                border-radius: 8px;
+                padding: 2px 7px !important;
+                font-size: 0.62rem !important;
+                gap: 3px !important;
+                border-radius: 6px !important;
+                height: 26px !important;
+                white-space: nowrap !important;
+                box-sizing: border-box !important;
             }
 
             .hud-speedometer {
-                padding: 3px 10px;
-                gap: 5px;
-                border-radius: 9px;
+                padding: 2px 7px !important;
+                gap: 3px !important;
+                border-radius: 6px !important;
+                height: 26px !important;
+                box-sizing: border-box !important;
             }
 
             .speed-label {
-                font-size: 0.55rem;
-                letter-spacing: 1px;
+                font-size: 0.45rem !important;
+                letter-spacing: 0.5px !important;
             }
 
             .speed-number {
-                font-size: 1.45rem;
+                font-size: 1.05rem !important;
             }
 
             .speed-unit {
-                font-size: 0.65rem;
+                font-size: 0.48rem !important;
             }
 
             #mobile-controls {
-                bottom: 15px;
-                padding: 0 20px;
+                bottom: 10px !important;
+                padding: 0 16px !important;
             }
 
             .modern-touch-btn {
-                width: 68px;
-                height: 68px;
+                width: 58px !important;
+                height: 58px !important;
             }
 
             .modern-touch-btn svg {
-                width: 26px;
-                height: 26px;
+                width: 22px !important;
+                height: 22px !important;
             }
         }
 
-        @media (max-width: 600px) {
+        /* STRICT ZERO-SCROLL VIEWPORT SCALING FOR MOBILE LANDSCAPE (HEIGHT <= 540px) */
+        @media (max-height: 540px) {
+            .screen {
+                padding: 4px 8px !important;
+                overflow: hidden !important; /* Zero scrolling needed! */
+                justify-content: center !important;
+            }
+
+            /* --- START / CAR SHOWCASE SCREEN --- */
+            .horizon-title-container {
+                margin-bottom: 2px !important;
+            }
+
+            .horizon-title {
+                font-size: clamp(1.2rem, 3.8vh, 1.7rem) !important;
+                letter-spacing: 1.5px !important;
+            }
+
+            .title-speed-line {
+                width: clamp(16px, 3.5vw, 32px) !important;
+                height: 1.5px !important;
+            }
+
+            .pilot-identity-bar {
+                margin-bottom: 2px !important;
+            }
+
+            .pilot-text {
+                font-size: clamp(0.52rem, 1.6vh, 0.66rem) !important;
+                letter-spacing: 1px !important;
+            }
+
+            .showcase-card {
+                width: min(350px, 72vw) !important;
+                padding: 3px 8px 4px 8px !important;
+                margin: 2px 0 !important;
+                border-radius: 8px !important;
+                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.8) !important;
+            }
+
+            .showcase-car-stage {
+                height: clamp(50px, 15vh, 72px) !important;
+            }
+
+            .showcase-car-img {
+                width: clamp(105px, 25vw, 155px) !important;
+                height: clamp(45px, 13vh, 65px) !important;
+            }
+
+            .car-underglow {
+                height: 8px !important;
+                bottom: 1px !important;
+            }
+
+            .showcase-nav-btn {
+                width: 24px !important;
+                height: 24px !important;
+            }
+
+            .showcase-nav-btn svg {
+                width: 11px !important;
+                height: 11px !important;
+            }
+
+            .showcase-nav-btn.prev {
+                left: 4px !important;
+            }
+
+            .showcase-nav-btn.next {
+                right: 4px !important;
+            }
+
+            .showcase-car-name {
+                font-size: clamp(0.68rem, 1.8vh, 0.82rem) !important;
+                letter-spacing: 1px !important;
+                margin-top: 1px !important;
+            }
+
+            .menu-action-row {
+                margin-top: 3px !important;
+                gap: 6px !important;
+                flex-wrap: wrap !important;
+                justify-content: center !important;
+            }
+
+            .menu-btn {
+                height: clamp(25px, 6.8vh, 30px) !important;
+                padding: 0 10px !important;
+                font-size: clamp(0.62rem, 1.8vh, 0.74rem) !important;
+                border-radius: 5px !important;
+                gap: 4px !important;
+                letter-spacing: 0.6px !important;
+            }
+
+            .menu-btn svg {
+                width: 11px !important;
+                height: 11px !important;
+            }
+
+            .control-guide-bar {
+                margin-top: 2px !important;
+            }
+
+            .guide-text {
+                font-size: clamp(0.48rem, 1.4vh, 0.58rem) !important;
+                letter-spacing: 0.6px !important;
+            }
+
+            .guide-line {
+                width: clamp(12px, 2.5vw, 24px) !important;
+            }
+
+            /* --- PAUSE SCREEN & RESUME BUTTON (ZERO-SCROLL) --- */
+            #pause-heading {
+                font-size: clamp(1.2rem, 4vh, 1.6rem) !important;
+                margin: 0 0 2px 0 !important;
+            }
+
+            .settings-box {
+                padding: 5px 14px !important;
+                margin: 2px 0 4px 0 !important;
+                min-width: 280px !important;
+                max-width: 82vw !important;
+                border-radius: 8px !important;
+            }
+
+            .settings-title {
+                font-size: 0.75rem !important;
+                margin-bottom: 3px !important;
+            }
+
+            .setting-row {
+                font-size: 0.64rem !important;
+                margin-bottom: 1px !important;
+            }
+
+            .neon-slider {
+                height: 4px !important;
+            }
+
+            .setting-spacer {
+                height: 2px !important;
+            }
+
+            .setting-hint {
+                display: none !important; /* Hide verbose hints in landscape so RESUME fits without scrolling */
+            }
+
+            .reset-cam-container {
+                margin-top: 3px !important;
+            }
+
+            .btn-reset-cam {
+                font-size: 0.55rem !important;
+                padding: 2px 8px !important;
+                border-radius: 4px !important;
+            }
+
+            .pause-action-row {
+                margin-top: 4px !important;
+            }
+
+            /* --- CRASH / GAME OVER SCREEN --- */
+            .crash-card {
+                padding: 6px 14px !important;
+                border-radius: 12px !important;
+                max-width: 86vw !important;
+            }
+
+            .crash-title {
+                font-size: clamp(1.4rem, 4.5vh, 2.0rem) !important;
+                margin: 0 !important;
+            }
+
+            .crash-subtitle {
+                font-size: 0.60rem !important;
+                margin-bottom: 4px !important;
+            }
+
+            .crash-stats-grid {
+                gap: 4px !important;
+                margin-bottom: 4px !important;
+            }
+
+            .crash-stat-box {
+                padding: 3px 6px !important;
+                border-radius: 6px !important;
+            }
+
+            .crash-stat-box .stat-label {
+                font-size: 0.48rem !important;
+            }
+
+            .crash-stat-box .stat-value {
+                font-size: 0.85rem !important;
+            }
+
+            /* --- CAR SELECTION SCREEN --- */
+            #car-select-screen {
+                padding: 6px 10px !important;
+            }
+
+            .garage-title {
+                font-size: 1.4rem !important;
+                margin: 0 !important;
+            }
+
+            .garage-subtitle {
+                font-size: 0.62rem !important;
+                margin-bottom: 3px !important;
+            }
+
+            #car-grid {
+                grid-template-columns: repeat(5, 1fr) !important;
+                gap: 5px !important;
+                padding: 5px !important;
+                max-height: 46vh !important;
+                border-radius: 10px !important;
+                margin: 3px 0 5px 0 !important;
+            }
+
+            .car-card {
+                padding: 3px 4px !important;
+                border-radius: 6px !important;
+            }
+
+            .car-card img {
+                width: 65px !important;
+                height: 32px !important;
+                margin-bottom: 1px !important;
+            }
+
+            .car-card .card-name {
+                font-size: 0.60rem !important;
+            }
+
+            .car-card .card-badge {
+                font-size: 0.50rem !important;
+                margin-top: 1px !important;
+            }
+        }
+
+        @media (max-width: 600px) and (min-height: 541px) {
             #car-grid {
                 grid-template-columns: repeat(2, 1fr);
             }
@@ -1578,7 +1859,7 @@
             <input type="range" id="sensitivity-slider" min="50" max="250" value="100" class="neon-slider">
             <div class="setting-hint">50% = Smooth &bull; 100% = Standard &bull; 250% = Ultra Sharp</div>
 
-            <div style="height: 16px;"></div>
+            <div class="setting-spacer"></div>
 
             <!-- Camera Distance Setting (Strictly Limited to 5.5m - 7.5m) -->
             <div class="setting-row">
@@ -1588,7 +1869,7 @@
             <input type="range" id="cam-dist-slider" min="5.5" max="7.5" step="0.1" value="6.5" class="neon-slider">
             <div class="setting-hint">Limited range: 5.5m (Close) &bull; 6.5m (Standard) &bull; 7.5m (Far)</div>
 
-            <div style="height: 16px;"></div>
+            <div class="setting-spacer"></div>
 
             <!-- Camera Height Setting (Strictly Limited to 1.8m - 2.6m) -->
             <div class="setting-row">
@@ -1598,12 +1879,12 @@
             <input type="range" id="cam-height-slider" min="1.8" max="2.6" step="0.05" value="2.2" class="neon-slider">
             <div class="setting-hint">Limited range: 1.8m (Low) &bull; 2.2m (Standard) &bull; 2.6m (High)</div>
 
-            <div style="margin-top: 14px; display: flex; justify-content: center;">
+            <div class="reset-cam-container">
                 <button id="reset-cam-btn" type="button" class="btn-reset-cam">DEFAULT CAMERA (6.5m / 2.2m)</button>
             </div>
         </div>
 
-        <div class="menu-action-row" style="margin-top: 16px;">
+        <div class="menu-action-row pause-action-row" style="margin-top: 16px;">
             <button id="resume-btn" class="menu-btn btn-ignite">RESUME (ESC)</button>
             <button id="pause-home-btn" class="menu-btn btn-home">🏠 HOME</button>
             <button id="pause-select-btn" class="menu-btn btn-select-car">CHANGE CAR</button>
@@ -2001,8 +2282,9 @@
             const vertices = [];
             const colors = [];
 
-            const colorPink = new THREE.Color(0x6a0a40);   // Subdued, rich evening magenta
-            const colorPurple = new THREE.Color(0x280442); // Deep evening indigo
+            // Crisp Synthwave Neon Pink / Magenta & Vivid Violet
+            const colorPink = new THREE.Color(0xff0080);   // Glowing Synthwave Neon Pink / Magenta
+            const colorPurple = new THREE.Color(0xa000f0); // Vivid Synthwave Neon Violet
 
             // 1. Lines running along Z (parallel to road)
             for (let i = 0; i <= divisions; i++) {
@@ -2037,7 +2319,7 @@
             const material = new THREE.LineBasicMaterial({
                 vertexColors: true,
                 transparent: true,
-                opacity: 0.16, // Subdued opacity to prevent bloom flaring
+                opacity: 0.72, // Crisp glowing neon lines over pitch-black floor squares
                 depthWrite: false
             });
 
@@ -2048,6 +2330,27 @@
 
         const sideGrid = createEnvironmentGrid();
         scene.add(sideGrid);
+
+        // --- SOLID PITCH-BLACK SYNTHWAVE GROUND PLANES (SIDES OF ROAD) ---
+        // Provides the solid pitch-black square floor under the neon wireframe grid
+        // Exactly matches reference image: glowing neon grid lines with solid pitch-black squares in between!
+        const sideGroundGeo = new THREE.PlaneGeometry(239, 500);
+        const sideGroundMat = new THREE.MeshStandardMaterial({
+            color: 0x020106, // Pitch-black synthwave obsidian floor
+            roughness: 0.95,
+            metalness: 0.1,
+            depthWrite: true
+        });
+
+        const leftSideGround = new THREE.Mesh(sideGroundGeo, sideGroundMat);
+        leftSideGround.rotation.x = -Math.PI / 2;
+        leftSideGround.position.set(-130.5, -0.165, 0);
+        scene.add(leftSideGround);
+
+        const rightSideGround = new THREE.Mesh(sideGroundGeo, sideGroundMat);
+        rightSideGround.rotation.x = -Math.PI / 2;
+        rightSideGround.position.set(130.5, -0.165, 0);
+        scene.add(rightSideGround);
 
         // Dark Clean Asphalt Highway (no grid lines)
         const floorGeo = new THREE.PlaneGeometry(22, 500);
@@ -2884,6 +3187,9 @@
                 gameState = 'start';
                 stopEngineSound();
             }
+            if (document.fullscreenElement) {
+                localStorage.setItem('horizon_persistent_fullscreen', 'true');
+            }
             window.location.href = 'index.html';
         }
 
@@ -3416,28 +3722,46 @@
         bindTouch(touchLeft, 'ArrowLeft');
         bindTouch(touchRight, 'ArrowRight');
 
-        // --- FULLSCREEN TOGGLE ---
+        // --- FULLSCREEN PERSISTENCE & TOGGLE ---
         const fullscreenBtn = document.getElementById('fullscreen-btn');
         function toggleFullscreen() {
             if (!document.fullscreenElement) {
                 document.documentElement.requestFullscreen().then(() => {
-                    fullscreenBtn.innerText = '⛶ EXIT FULL';
+                    if (fullscreenBtn) fullscreenBtn.innerText = '⛶ EXIT FULL';
+                    localStorage.setItem('horizon_persistent_fullscreen', 'true');
                 }).catch(err => console.warn(err));
             } else {
                 if (document.exitFullscreen) {
                     document.exitFullscreen().then(() => {
-                        fullscreenBtn.innerText = '⛶ FULLSCREEN';
+                        if (fullscreenBtn) fullscreenBtn.innerText = '⛶ FULLSCREEN';
+                        localStorage.setItem('horizon_persistent_fullscreen', 'false');
                     }).catch(err => console.warn(err));
                 }
             }
         }
-        fullscreenBtn.addEventListener('click', toggleFullscreen);
+        if (fullscreenBtn) fullscreenBtn.addEventListener('click', toggleFullscreen);
+
         document.addEventListener('fullscreenchange', () => {
             if (!document.fullscreenElement) {
-                fullscreenBtn.innerText = '⛶ FULLSCREEN';
+                if (fullscreenBtn) fullscreenBtn.innerText = '⛶ FULLSCREEN';
+                localStorage.setItem('horizon_persistent_fullscreen', 'false');
             } else {
-                fullscreenBtn.innerText = '⛶ EXIT FULL';
+                if (fullscreenBtn) fullscreenBtn.innerText = '⛶ EXIT FULL';
+                localStorage.setItem('horizon_persistent_fullscreen', 'true');
             }
+        });
+
+        // Automatically restore fullscreen seamlessly on first user interaction if enabled
+        function tryRestoreFullscreen() {
+            if (localStorage.getItem('horizon_persistent_fullscreen') === 'true' && !document.fullscreenElement) {
+                document.documentElement.requestFullscreen().then(() => {
+                    if (fullscreenBtn) fullscreenBtn.innerText = '⛶ EXIT FULL';
+                }).catch(() => {});
+            }
+        }
+
+        ['pointerdown', 'touchstart', 'click', 'keydown'].forEach(evt => {
+            window.addEventListener(evt, tryRestoreFullscreen, { passive: true });
         });
 
         window.addEventListener('resize', () => {

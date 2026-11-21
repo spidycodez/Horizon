@@ -552,6 +552,165 @@
             }
         }
 
+        /* --------------------------------------------------
+           MOBILE LANDSCAPE ZERO-SCROLL RESPONSIVE VIEWPORT
+           (Ensures LAUNCH HIGHWAY and START GAME require ZERO scrolling on mobile)
+        -------------------------------------------------- */
+        @media (max-height: 560px) {
+            html, body {
+                overflow: hidden !important;
+                height: 100vh !important;
+            }
+
+            .page-container {
+                flex-direction: row !important;
+                justify-content: space-evenly !important;
+                align-items: center !important;
+                text-align: left !important;
+                padding: 6px 3vw !important;
+                gap: 14px !important;
+                height: 100vh !important;
+                box-sizing: border-box !important;
+            }
+
+            .hero-left {
+                max-width: 45% !important;
+                align-items: flex-start !important;
+                padding-right: 0 !important;
+            }
+
+            .hero-subtitle {
+                font-size: 0.60rem !important;
+                letter-spacing: 2px !important;
+                margin-bottom: 2px !important;
+            }
+
+            .hero-subtitle::before {
+                display: none !important;
+            }
+
+            .title-wrapper {
+                margin-bottom: 4px !important;
+                align-items: flex-start !important;
+            }
+
+            .title-line-1 {
+                font-size: clamp(1.4rem, 4.5vh, 2.0rem) !important;
+                letter-spacing: 2px !important;
+            }
+
+            .title-line-2 {
+                font-size: clamp(2.2rem, 7.5vh, 3.2rem) !important;
+                letter-spacing: 2px !important;
+            }
+
+            .hero-desc {
+                display: none !important; /* Hide verbose description in mobile landscape */
+            }
+
+            .feature-pills {
+                display: none !important; /* Hide badges so entire card fits on one screen */
+            }
+
+            .hero-right {
+                width: 100% !important;
+                max-width: 360px !important;
+            }
+
+            .login-card {
+                padding: 10px 16px !important;
+                border-radius: 12px !important;
+            }
+
+            .card-tabs {
+                margin-bottom: 6px !important;
+            }
+
+            .card-tab-btn {
+                padding: 4px 10px !important;
+                font-size: 0.68rem !important;
+            }
+
+            .card-header {
+                margin-bottom: 4px !important;
+            }
+
+            .card-title {
+                font-size: 1.05rem !important;
+                letter-spacing: 1.5px !important;
+            }
+
+            .card-subtitle {
+                display: none !important;
+            }
+
+            .input-group {
+                margin-bottom: 6px !important;
+            }
+
+            .input-label {
+                font-size: 0.55rem !important;
+                margin-bottom: 2px !important;
+            }
+
+            .input-field {
+                height: 32px !important;
+                font-size: 0.85rem !important;
+                padding: 0 10px !important;
+                border-radius: 6px !important;
+            }
+
+            .btn-login,
+            .btn-start-game {
+                height: 36px !important;
+                font-size: 0.88rem !important;
+                border-radius: 6px !important;
+                margin-top: 4px !important;
+            }
+
+            .profile-badge-box {
+                padding: 4px 10px !important;
+                margin-bottom: 6px !important;
+                border-radius: 8px !important;
+            }
+
+            .profile-pilot-name {
+                font-size: 1.05rem !important;
+                margin-bottom: 2px !important;
+            }
+
+            .profile-stats-grid {
+                margin-top: 2px !important;
+                gap: 6px !important;
+            }
+
+            .profile-stat-cell {
+                padding: 3px 6px !important;
+            }
+
+            .stat-sublabel {
+                font-size: 0.50rem !important;
+            }
+
+            .stat-mainval {
+                font-size: 0.82rem !important;
+            }
+
+            .btn-switch-pilot {
+                height: 22px !important;
+                font-size: 0.60rem !important;
+                margin-top: 4px !important;
+            }
+
+            .home-fs-btn {
+                top: 8px !important;
+                right: 12px !important;
+                padding: 4px 8px !important;
+                font-size: 0.65rem !important;
+                border-radius: 6px !important;
+            }
+        }
+
         /* Top-Right Minimal Fullscreen Button */
         .home-fs-btn {
             position: fixed;
@@ -1366,7 +1525,7 @@
                     refreshUI();
 
                     if (launchOnSuccess) {
-                        setTimeout(() => { window.location.href = 'racinggame.html'; }, 350);
+                        setTimeout(() => { launchHighway(); }, 350);
                     }
                 } else {
                     showToast('INCORRECT PASSWORD FOR THIS PILOT', '#ff0055');
@@ -1398,7 +1557,7 @@
                 refreshUI();
 
                 if (launchOnSuccess) {
-                    setTimeout(() => { window.location.href = 'racinggame.html'; }, 350);
+                    setTimeout(() => { launchHighway(); }, 350);
                 }
             }
         }
@@ -1406,6 +1565,13 @@
         function showToast(msg, color) {
             toast.innerText = msg;
             toast.style.color = color || '#FFF8F0';
+        }
+
+        function launchHighway() {
+            if (document.fullscreenElement) {
+                localStorage.setItem('horizon_persistent_fullscreen', 'true');
+            }
+            window.location.href = 'racinggame.html';
         }
 
         // Event Listeners
@@ -1419,18 +1585,18 @@
                 localStorage.removeItem('horizon_current_user');
                 localStorage.removeItem('outrun_pilot');
                 showToast('LAUNCHING AS GUEST PILOT...', '#FF9D32');
-                setTimeout(() => { window.location.href = 'racinggame.html'; }, 300);
+                setTimeout(() => { launchHighway(); }, 300);
             }
         });
 
         profStartGameBtn.addEventListener('click', () => {
             showToast('IGNITING ENGINES...', '#FF9D32');
-            setTimeout(() => { window.location.href = 'racinggame.html'; }, 300);
+            setTimeout(() => { launchHighway(); }, 300);
         });
 
         lbStartGameBtn.addEventListener('click', () => {
             showToast('IGNITING ENGINES...', '#FF9D32');
-            setTimeout(() => { window.location.href = 'racinggame.html'; }, 300);
+            setTimeout(() => { launchHighway(); }, 300);
         });
 
         logoutBtn.addEventListener('click', () => {
@@ -1513,17 +1679,32 @@
         });
 
 
-        // Fullscreen Toggle on Homepage
+        // Fullscreen Toggle on Homepage with Persistent State Across Navigation
         const homeFsBtn = document.getElementById('home-fullscreen-btn');
+        function restoreHomeFullscreen() {
+            if (localStorage.getItem('horizon_persistent_fullscreen') === 'true' && !document.fullscreenElement) {
+                document.documentElement.requestFullscreen().then(() => {
+                    if (homeFsBtn) homeFsBtn.querySelector('span').innerText = 'EXIT FULL';
+                }).catch(() => {});
+            }
+        }
+        ['pointerdown', 'touchstart', 'click', 'keydown'].forEach(evt => {
+            window.addEventListener(evt, restoreHomeFullscreen, { passive: true });
+        });
+
         if (homeFsBtn) {
             homeFsBtn.addEventListener('click', () => {
                 if (!document.fullscreenElement) {
-                    document.documentElement.requestFullscreen().catch(err => console.warn(err));
-                    homeFsBtn.querySelector('span').innerText = 'EXIT FULL';
+                    document.documentElement.requestFullscreen().then(() => {
+                        homeFsBtn.querySelector('span').innerText = 'EXIT FULL';
+                        localStorage.setItem('horizon_persistent_fullscreen', 'true');
+                    }).catch(err => console.warn(err));
                 } else {
                     if (document.exitFullscreen) {
-                        document.exitFullscreen().catch(err => console.warn(err));
-                        homeFsBtn.querySelector('span').innerText = 'FULLSCREEN';
+                        document.exitFullscreen().then(() => {
+                            homeFsBtn.querySelector('span').innerText = 'FULLSCREEN';
+                            localStorage.setItem('horizon_persistent_fullscreen', 'false');
+                        }).catch(err => console.warn(err));
                     }
                 }
             });
@@ -1531,6 +1712,7 @@
                 if (homeFsBtn) {
                     homeFsBtn.querySelector('span').innerText = document.fullscreenElement ? 'EXIT FULL' : 'FULLSCREEN';
                 }
+                localStorage.setItem('horizon_persistent_fullscreen', document.fullscreenElement ? 'true' : 'false');
             });
         }
     </script>

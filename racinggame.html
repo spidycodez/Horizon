@@ -31,21 +31,9 @@
         /* --------------------------------------------------
            CLEAN, MODERN AAA RACING HUD & COCKPIT TELEMETRY
         -------------------------------------------------- */
-        #ui-layer {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            padding: 16px 24px;
-            box-sizing: border-box;
-            z-index: 10;
-        }
-
+        /* --------------------------------------------------
+           CLEAN, MODERN AAA RACING HUD & TOP BAR
+        -------------------------------------------------- */
         #top-bar {
             position: fixed;
             top: 0;
@@ -58,16 +46,22 @@
             pointer-events: none;
             gap: 12px;
             flex-wrap: nowrap;
-            padding: 12px 20px;
+            padding: 8px 16px;
             box-sizing: border-box;
-            z-index: 100;
+            z-index: 999999 !important; /* Top-most layer across the entire page */
         }
 
         .hud-group {
             display: flex;
             align-items: center;
-            gap: 12px;
-            pointer-events: auto;
+            gap: 10px;
+            pointer-events: auto !important;
+            touch-action: manipulation !important;
+        }
+
+        .hud-group * {
+            pointer-events: auto !important;
+            touch-action: manipulation !important;
         }
 
         /* Modern Glass Pill for Telemetry (Pilot, Score) - Orbitron Gaming Aesthetic */
@@ -169,6 +163,9 @@
             gap: 6px;
             transition: all 0.2s ease;
             outline: none;
+            pointer-events: auto !important;
+            touch-action: manipulation !important;
+            -webkit-tap-highlight-color: rgba(255, 255, 255, 0.2);
         }
 
         .hud-toggle-btn:hover {
@@ -201,6 +198,9 @@
             transition: all 0.2s ease;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
             outline: none;
+            pointer-events: auto !important;
+            touch-action: manipulation !important;
+            -webkit-tap-highlight-color: rgba(255, 255, 255, 0.2);
         }
 
         .hud-btn:hover {
@@ -255,10 +255,12 @@
         -------------------------------------------------- */
         .tap-steering-container {
             position: fixed;
-            top: 0;
+            top: 48px; /* Starts below the top bar so it NEVER intercepts top button touches! */
             left: 0;
+            right: 0;
+            bottom: 0;
             width: 100vw;
-            height: 100vh;
+            height: calc(100vh - 48px);
             pointer-events: none;
             z-index: 12;
             display: flex;
@@ -713,27 +715,6 @@
             text-shadow: 0 0 16px rgba(255, 255, 255, 0.45), 0 2px 8px rgba(0, 0, 0, 0.9);
         }
 
-        .showcase-car-status {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 0.95rem;
-            letter-spacing: 1.5px;
-            font-weight: 700;
-        }
-
-        .status-ready {
-            color: #FF2DAA;
-            text-shadow: 0 0 10px rgba(255, 45, 170, 0.75);
-            font-weight: 800;
-        }
-
-        .status-count {
-            color: rgba(255, 255, 255, 0.78);
-            text-transform: uppercase;
-        }
-
         /* 
            THREE MAIN BUTTONS BENEATH SHOWCASE CARD
         -------------------------------------------------- */
@@ -1173,15 +1154,17 @@
         -------------------------------------------------- */
         @media (max-width: 950px),
         (max-height: 540px) {
-            #ui-layer {
-                padding: 6px 10px;
-            }
-
-            /* Fixed Top Bar on Mobile - Never wraps, fixed positions, compact sizing */
+            /* Fixed Top Bar on Mobile - Topmost z-index, never wraps, fixed positions, compact sizing */
             #top-bar {
                 padding: 4px 8px !important;
                 gap: 4px !important;
                 flex-wrap: nowrap !important;
+                z-index: 999999 !important;
+            }
+
+            .tap-steering-container {
+                top: 36px !important;
+                height: calc(100vh - 36px) !important;
             }
 
             .hud-group {
@@ -1646,72 +1629,69 @@
 
     <canvas id="game-canvas"></canvas>
 
-    <div id="ui-layer">
-        <header id="top-bar">
-            <!-- Left Cluster: Pilot & Score Telemetry -->
-            <div class="hud-group">
-                <div class="hud-pill pilot-pill">
-                    <span class="hud-dot"></span>
-                    <span class="hud-label">PILOT</span>
-                    <span id="hud-pilot" class="hud-value pilot-val" style="display:none;"></span>
-                </div>
-
-                <div class="hud-pill score-pill">
-                    <span class="hud-label">SCORE</span>
-                    <span id="score" class="hud-value score-val">0</span>
-                </div>
-
-                <!-- Modern Segmented Control Switch (PC / Touch) -->
-                <!-- Modern Segmented Control Switch (PC / Tap / Gyro) -->
-                <div class="hud-control-switch">
-                    <button id="ctrl-pc-btn" class="hud-toggle-btn active" title="Keyboard Steering (Arrows / A & D)">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
-                            <path
-                                d="M20 18c1.1 0 1.99-.9 1.99-2L22 5c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2H0c0 1.1.9 2 2 2h20c1.1 0 2-.9 2-2h-4zM4 5h16v11H4V5z" />
-                        </svg>
-                        <span>PC</span>
-                    </button>
-                    <button id="ctrl-tap-btn" class="hud-toggle-btn" title="Tap Left/Right Screen Sides (No Buttons)">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
-                            <path
-                                d="M9 11.24V7.5a2.5 2.5 0 0 1 5 0v3.74c1.21-.81 2-2.18 2-3.74a4.5 4.5 0 0 0-9 0c0 1.56.79 2.93 2 3.74zm9.84 4.63l-4.54-2.26a1.5 1.5 0 0 0-.67-.16h-.63V7.5a1.5 1.5 0 0 0-3 0v8.68l-3.36-.71c-.34-.07-.7.04-.94.3l-1.07 1.07 4.7 4.7c.39.39.92.62 1.48.62h6.77c1.02 0 1.88-.74 2.03-1.75l.63-4.42c.09-.64-.17-1.28-.6-1.72z" />
-                        </svg>
-                        <span>TAP</span>
-                    </button>
-                    <button id="ctrl-gyro-btn" class="hud-toggle-btn" title="Tilt Device to Steer (Gyroscope)">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
-                            <path
-                                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z" />
-                        </svg>
-                        <span>GYRO</span>
-                    </button>
-                </div>
+    <header id="top-bar">
+        <!-- Left Cluster: Pilot & Score Telemetry -->
+        <div class="hud-group">
+            <div class="hud-pill pilot-pill">
+                <span class="hud-dot"></span>
+                <span class="hud-label">PILOT</span>
+                <span id="hud-pilot" class="hud-value pilot-val" style="display:none;"></span>
             </div>
 
-            <!-- Right Cluster: Controls & Cockpit Speedometer -->
-            <div class="hud-group">
-                <button id="mute-toggle-btn" class="hud-btn" title="Mute/Unmute Car Engine Sound">
-                    <span id="mute-icon">🔊</span>
-                    <span id="mute-text">SFX</span>
-                </button>
-                <button id="pause-toggle-btn" class="hud-btn" title="Pause Game (ESC)">
-                    <span>⏸</span>
-                    <span>PAUSE</span>
-                </button>
-                <button id="fullscreen-btn" class="hud-btn" title="Toggle Fullscreen">
-                    <span>⛶</span>
-                    <span>FULLSCREEN</span>
-                </button>
-
-                <!-- Modern Digital Speedometer -->
-                <div id="speedometer" class="hud-speedometer">
-                    <span class="speed-label">SPEED</span>
-                    <span id="speed" class="speed-number">120</span>
-                    <span class="speed-unit">KM/H</span>
-                </div>
+            <div class="hud-pill score-pill">
+                <span class="hud-label">SCORE</span>
+                <span id="score" class="hud-value score-val">0</span>
             </div>
-        </header>
-    </div>
+
+            <!-- Modern Segmented Control Switch (PC / Tap / Gyro) -->
+            <div class="hud-control-switch">
+                <button id="ctrl-pc-btn" class="hud-toggle-btn active" title="Keyboard Steering (Arrows / A & D)">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                        <path
+                            d="M20 18c1.1 0 1.99-.9 1.99-2L22 5c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2H0c0 1.1.9 2 2 2h20c1.1 0 2-.9 2-2h-4zM4 5h16v11H4V5z" />
+                    </svg>
+                    <span>PC</span>
+                </button>
+                <button id="ctrl-tap-btn" class="hud-toggle-btn" title="Tap Left/Right Screen Sides (No Buttons)">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                        <path
+                            d="M9 11.24V7.5a2.5 2.5 0 0 1 5 0v3.74c1.21-.81 2-2.18 2-3.74a4.5 4.5 0 0 0-9 0c0 1.56.79 2.93 2 3.74zm9.84 4.63l-4.54-2.26a1.5 1.5 0 0 0-.67-.16h-.63V7.5a1.5 1.5 0 0 0-3 0v8.68l-3.36-.71c-.34-.07-.7.04-.94.3l-1.07 1.07 4.7 4.7c.39.39.92.62 1.48.62h6.77c1.02 0 1.88-.74 2.03-1.75l.63-4.42c.09-.64-.17-1.28-.6-1.72z" />
+                    </svg>
+                    <span>TAP</span>
+                </button>
+                <button id="ctrl-gyro-btn" class="hud-toggle-btn" title="Tilt Device to Steer (Gyroscope)">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                        <path
+                            d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z" />
+                    </svg>
+                    <span>GYRO</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Right Cluster: Controls & Cockpit Speedometer -->
+        <div class="hud-group">
+            <button id="mute-toggle-btn" class="hud-btn" title="Mute/Unmute Car Engine Sound">
+                <span id="mute-icon">🔊</span>
+                <span id="mute-text">SFX</span>
+            </button>
+            <button id="pause-toggle-btn" class="hud-btn" title="Pause Game (ESC)">
+                <span id="pause-btn-icon">⏸</span>
+                <span id="pause-btn-text">PAUSE</span>
+            </button>
+            <button id="fullscreen-btn" class="hud-btn" title="Toggle Fullscreen">
+                <span id="fs-btn-icon">⛶</span>
+                <span id="fs-btn-text">FULLSCREEN</span>
+            </button>
+
+            <!-- Modern Digital Speedometer -->
+            <div id="speedometer" class="hud-speedometer">
+                <span class="speed-label">SPEED</span>
+                <span id="speed" class="speed-number">120</span>
+                <span class="speed-unit">KM/H</span>
+            </div>
+        </div>
+    </header>
 
     <!-- Fullscreen Invisible Tap Steering Zones (No Buttons Covering The Screen) -->
     <div id="tap-steering-container" class="tap-steering-container" style="display: none;">
@@ -2002,6 +1982,26 @@
             } catch (e) { }
         }
 
+        // Ultra-responsive, bulletproof touch and click handler for all HUD & Top-Bar buttons
+        function bindHudButton(btn, callback) {
+            if (!btn) return;
+            let lastTrigger = 0;
+            const trigger = (e) => {
+                if (e) {
+                    if (e.cancelable) e.preventDefault();
+                    e.stopPropagation();
+                }
+                const now = Date.now();
+                if (now - lastTrigger < 300) return; // Debounce double triggers from touch + click
+                lastTrigger = now;
+                playUiClickSound();
+                callback(e);
+            };
+
+            btn.addEventListener('click', trigger);
+            btn.addEventListener('touchend', trigger, { passive: false });
+        }
+
         function initAudio() {
             if (masterGain) return; // Prevent double initialization
             try {
@@ -2219,21 +2219,22 @@
 
         const scene = new THREE.Scene();
 
-        // Evening Twilight Gradient Sky
+        // Evening Twilight Gradient Sky (Matching Synthwave Sunset Wallpaper)
         const skyCanvas = document.createElement('canvas');
         skyCanvas.width = 2; skyCanvas.height = 512;
         const skyCtx = skyCanvas.getContext('2d');
         const skyGrad = skyCtx.createLinearGradient(0, 0, 0, 512);
-        skyGrad.addColorStop(0, '#070214');    // Deep midnight indigo at the zenith
-        skyGrad.addColorStop(0.35, '#1d0636'); // Evening dusk violet
-        skyGrad.addColorStop(0.65, '#4e0c46'); // Twilight magenta/crimson
-        skyGrad.addColorStop(0.88, '#8a1548'); // Sunset crimson
-        skyGrad.addColorStop(1, '#c83242');    // Warm dusk coral horizon glow
+        skyGrad.addColorStop(0, '#060114');    // Deep space midnight indigo at zenith
+        skyGrad.addColorStop(0.25, '#160426'); // Evening dusk violet
+        skyGrad.addColorStop(0.50, '#42083b'); // Twilight magenta
+        skyGrad.addColorStop(0.70, '#750e3d'); // Sunset crimson
+        skyGrad.addColorStop(0.88, '#ad2432'); // Warm sunset coral-red
+        skyGrad.addColorStop(1, '#e64e28');    // Radiant sunset horizon glow
         skyCtx.fillStyle = skyGrad;
         skyCtx.fillRect(0, 0, 2, 512);
         scene.background = new THREE.CanvasTexture(skyCanvas);
 
-        scene.fog = new THREE.FogExp2(0x2d0633, 0.0048);
+        scene.fog = new THREE.FogExp2(0x180520, 0.0035);
 
         // ==========================================
         // CAMERA TUNING CONTROLS (Edit these values!)
@@ -2256,38 +2257,45 @@
         let camRoll = 0;
 
         // Evening Twilight Atmosphere Lighting
-        const ambientLight = new THREE.AmbientLight(0x482858, 0.95);
+        const ambientLight = new THREE.AmbientLight(0x381845, 0.85);
         scene.add(ambientLight);
 
-        const dirLight = new THREE.DirectionalLight(0xff8255, 1.2);
+        const dirLight = new THREE.DirectionalLight(0xff7744, 1.3);
         dirLight.position.set(0, 45, -220);
         dirLight.castShadow = true;
         scene.add(dirLight);
 
-        // Bloom Post-Processing (Half-Resolution for silky smooth 60/120 FPS)
+        // Soft rear illumination for player's vehicle body & paint details
+        const rearLight = new THREE.DirectionalLight(0xa585c8, 0.75);
+        rearLight.position.set(0, 15, 25);
+        scene.add(rearLight);
+
+        // Bloom Post-Processing (Tuned for silky synthwave neon glow without blinding white blobs)
         const renderScene = new THREE.RenderPass(scene, camera);
         const bloomRes = new THREE.Vector2(Math.floor(window.innerWidth / 2), Math.floor(window.innerHeight / 2));
-        const bloomPass = new THREE.UnrealBloomPass(bloomRes, 1.8, 0.4, 0.85);
+        const bloomPass = new THREE.UnrealBloomPass(bloomRes, 0.85, 0.35, 0.88);
         const composer = new THREE.EffectComposer(renderer);
         composer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
         composer.addPass(renderScene);
         composer.addPass(bloomPass);
 
-        // --- ENVIRONMENT: EVENING RETRO SUN ---
+        // --- ENVIRONMENT: EVENING RETRO SUN (Large Majestic Sunset Sun) ---
         function createRetroSun() {
             const sunCanvas = document.createElement('canvas');
             sunCanvas.width = 512; sunCanvas.height = 512;
             const ctx = sunCanvas.getContext('2d');
 
             const grad = ctx.createLinearGradient(0, 0, 0, 512);
-            grad.addColorStop(0, '#ffbe3b');    // Warm golden amber at top
-            grad.addColorStop(0.45, '#ff4d6d'); // Warm sunset coral
-            grad.addColorStop(1, '#8e0638');    // Deep dusk crimson
+            grad.addColorStop(0, '#fff477');    // Radiant golden yellow at top
+            grad.addColorStop(0.35, '#ffaa00'); // Warm sunset amber
+            grad.addColorStop(0.65, '#ff2e63'); // Vivid hot magenta
+            grad.addColorStop(1, '#9e003a');    // Deep sunset crimson
             ctx.fillStyle = grad;
             ctx.beginPath();
-            ctx.arc(256, 256, 256, 0, Math.PI * 2);
+            ctx.arc(256, 256, 254, 0, Math.PI * 2);
             ctx.fill();
 
+            // Retro horizontal slats / scanlines through lower half
             ctx.globalCompositeOperation = 'destination-out';
             for (let i = 0; i < 14; i++) {
                 let yPos = 240 + (i * 20);
@@ -2297,118 +2305,98 @@
 
             const sunTex = new THREE.CanvasTexture(sunCanvas);
             const sunMat = new THREE.MeshBasicMaterial({ map: sunTex, transparent: true, fog: false });
-            const sunGeo = new THREE.PlaneGeometry(180, 180);
+            const sunGeo = new THREE.PlaneGeometry(210, 210);
             const sun = new THREE.Mesh(sunGeo, sunMat);
-            sun.position.set(0, 35, -400);
+            sun.position.set(0, 32, -430);
             return sun;
         }
         scene.add(createRetroSun());
 
-        // --- SYNTHWAVE ENVIRONMENT GRID (ROAD CUT-OUT) ---
-        // Generates the retro pink/purple grid exclusively on the environment sides (x < -11 and x > 11),
-        // leaving the asphalt highway 100% clean of any intersecting grid lines!
-        function createEnvironmentGrid() {
-            const size = 500;
-            const divisions = 100;
-            const step = size / divisions; // 5 units spacing
-            const halfSize = size / 2;     // 250 units
-            const roadHalfWidth = 11.0;   // Road corridor width (-11 to +11)
+        // --- SYNTHWAVE ENVIRONMENT WIREFRAME GRID (EXACTLY MATCHING IMAGE 5) ---
+        // Generates crisp neon magenta/pink grid lines over pitch-black floor squares.
+        // Uses a high-res procedural canvas texture with anisotropic filtering and seamless UV scrolling.
+        function createSynthwaveGridTexture() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 256; canvas.height = 256;
+            const ctx = canvas.getContext('2d');
 
-            const vertices = [];
-            const colors = [];
+            // 1. Solid Pitch-Black Floor Square (Matches Image 5 reference exactly!)
+            ctx.fillStyle = '#010003';
+            ctx.fillRect(0, 0, 256, 256);
 
-            // Crisp Synthwave Neon Pink / Magenta & Vivid Violet
-            const colorPink = new THREE.Color(0xff0080);   // Glowing Synthwave Neon Pink / Magenta
-            const colorPurple = new THREE.Color(0xa000f0); // Vivid Synthwave Neon Violet
+            // 2. Outer Soft Neon Pink Glow halo
+            ctx.strokeStyle = 'rgba(255, 0, 128, 0.35)';
+            ctx.lineWidth = 14;
+            ctx.strokeRect(0, 0, 256, 256);
 
-            // 1. Lines running along Z (parallel to road)
-            for (let i = 0; i <= divisions; i++) {
-                const x = -halfSize + (i * step);
-                // Cut out the entire road width so no lines run down the highway!
-                if (Math.abs(x) < roadHalfWidth) continue;
+            // 3. Vibrant Neon Pink / Magenta Synthwave Grid Border
+            ctx.strokeStyle = '#ff0080';
+            ctx.lineWidth = 6;
+            ctx.strokeRect(0, 0, 256, 256);
 
-                const col = (x === -halfSize || x === halfSize || Math.abs(x) === 0) ? colorPurple : colorPink;
+            // 4. Intense Core Laser Wireframe Line (Glowing Hot Pink / White)
+            ctx.strokeStyle = '#ffaae0';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(0, 0, 256, 256);
 
-                vertices.push(x, 0, -halfSize, x, 0, halfSize);
-                colors.push(col.r, col.g, col.b, col.r, col.g, col.b);
-            }
-
-            // 2. Lines running along X (perpendicular across landscape)
-            for (let i = 0; i <= divisions; i++) {
-                const z = -halfSize + (i * step);
-                const col = (z === 0) ? colorPurple : colorPink;
-
-                // Left environment landscape (from -250 to -11)
-                vertices.push(-halfSize, 0, z, -roadHalfWidth, 0, z);
-                colors.push(col.r, col.g, col.b, col.r, col.g, col.b);
-
-                // Right environment landscape (from +11 to +250)
-                vertices.push(roadHalfWidth, 0, z, halfSize, 0, z);
-                colors.push(col.r, col.g, col.b, col.r, col.g, col.b);
-            }
-
-            const geometry = new THREE.BufferGeometry();
-            geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
-            geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
-
-            const material = new THREE.LineBasicMaterial({
-                vertexColors: true,
-                transparent: true,
-                opacity: 0.72, // Crisp glowing neon lines over pitch-black floor squares
-                depthWrite: false
-            });
-
-            const grid = new THREE.LineSegments(geometry, material);
-            grid.position.y = -0.16;
-            return grid;
+            const tex = new THREE.CanvasTexture(canvas);
+            tex.wrapS = THREE.RepeatWrapping;
+            tex.wrapT = THREE.RepeatWrapping;
+            // 240 units width / 5 units per square = 48 squares across
+            // 600 units depth / 5 units per square = 120 squares along road
+            tex.repeat.set(48, 120);
+            try {
+                tex.anisotropy = renderer.capabilities.getMaxAnisotropy();
+            } catch(e) {}
+            return tex;
         }
 
-        const sideGrid = createEnvironmentGrid();
-        scene.add(sideGrid);
-
-        // --- SOLID PITCH-BLACK SYNTHWAVE GROUND PLANES (SIDES OF ROAD) ---
-        // Provides the solid pitch-black square floor under the neon wireframe grid
-        // Exactly matches reference image: glowing neon grid lines with solid pitch-black squares in between!
-        const sideGroundGeo = new THREE.PlaneGeometry(239, 500);
-        const sideGroundMat = new THREE.MeshStandardMaterial({
-            color: 0x020106, // Pitch-black synthwave obsidian floor
-            roughness: 0.95,
-            metalness: 0.1,
-            depthWrite: true
+        const gridTex = createSynthwaveGridTexture();
+        const sideGroundMat = new THREE.MeshBasicMaterial({
+            map: gridTex,
+            fog: true
         });
+
+        // Left & Right Ground Planes (Leaves the central road corridor x: -11 to +11 100% clean asphalt!)
+        const groundLength = 600;
+        const groundWidth = 240;
+        const sideGroundGeo = new THREE.PlaneGeometry(groundWidth, groundLength);
 
         const leftSideGround = new THREE.Mesh(sideGroundGeo, sideGroundMat);
         leftSideGround.rotation.x = -Math.PI / 2;
-        leftSideGround.position.set(-130.5, -0.165, 0);
+        leftSideGround.position.set(-11 - (groundWidth / 2), -0.16, -100);
         scene.add(leftSideGround);
 
         const rightSideGround = new THREE.Mesh(sideGroundGeo, sideGroundMat);
         rightSideGround.rotation.x = -Math.PI / 2;
-        rightSideGround.position.set(130.5, -0.165, 0);
+        rightSideGround.position.set(11 + (groundWidth / 2), -0.16, -100);
         scene.add(rightSideGround);
 
-        // Dark Clean Asphalt Highway (no grid lines)
-        const floorGeo = new THREE.PlaneGeometry(22, 500);
+        // Wet Glossy Asphalt Highway (Reflecting sunset and neon lights)
+        const floorGeo = new THREE.PlaneGeometry(22, groundLength);
         const floorMat = new THREE.MeshStandardMaterial({
-            color: 0x0a0a0c,
-            roughness: 0.85,
-            metalness: 0.15,
+            color: 0x08080c,
+            roughness: 0.22,
+            metalness: 0.70,
             depthWrite: true
         });
         const floor = new THREE.Mesh(floorGeo, floorMat);
         floor.rotation.x = -Math.PI / 2;
-        floor.position.y = -0.15;
+        floor.position.set(0, -0.15, -100);
         scene.add(floor);
 
-        const borderGeo = new THREE.PlaneGeometry(0.3, 500);
-        const borderMat = new THREE.MeshBasicMaterial({ color: 0xff8800 });
-        const leftBorder = new THREE.Mesh(borderGeo, borderMat);
+        // Glowing Neon Highway Borders (Left: Hot Pink, Right: Warm Amber, matching Image 2)
+        const borderGeo = new THREE.PlaneGeometry(0.35, groundLength);
+        const leftBorderMat = new THREE.MeshBasicMaterial({ color: 0xff0080 });
+        const leftBorder = new THREE.Mesh(borderGeo, leftBorderMat);
         leftBorder.rotation.x = -Math.PI / 2;
-        leftBorder.position.set(-11, -0.14, -200);
+        leftBorder.position.set(-11, -0.14, -100);
         scene.add(leftBorder);
 
-        const rightBorder = leftBorder.clone();
-        rightBorder.position.set(11, -0.14, -200);
+        const rightBorderMat = new THREE.MeshBasicMaterial({ color: 0xffaa00 });
+        const rightBorder = new THREE.Mesh(borderGeo, rightBorderMat);
+        rightBorder.rotation.x = -Math.PI / 2;
+        rightBorder.position.set(11, -0.14, -100);
         scene.add(rightBorder);
 
         const dashedLines = [];
@@ -2422,68 +2410,118 @@
             dashedLines.push(dash);
         }
 
-        // White Light Poles (Exact Original)
+        // Modern Highway Light Poles (Warm Amber Synthwave Luminaire - No Blinding White Glare)
         function createLightPole(isRightSide) {
             const group = new THREE.Group();
-            const darkMetal = new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.8 });
+            const darkMetal = new THREE.MeshStandardMaterial({ color: 0x18181f, roughness: 0.7, metalness: 0.3 });
 
-            const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.25, 9), darkMetal);
-            pole.position.y = 4.5;
+            // Vertical pole
+            const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.22, 10, 6), darkMetal);
+            pole.position.y = 5.0;
             group.add(pole);
 
-            const arm = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 3.5), darkMetal);
-            arm.rotation.z = Math.PI / 2;
-            arm.position.set(isRightSide ? -1.5 : 1.5, 8.8, 0);
+            // Curved horizontal arm extending slightly toward road
+            const arm = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 2.8, 6), darkMetal);
+            arm.rotation.z = isRightSide ? Math.PI / 2.2 : -Math.PI / 2.2;
+            arm.position.set(isRightSide ? -1.2 : 1.2, 9.8, 0);
             group.add(arm);
 
-            const lightMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
-            const lightBox = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.2, 0.6), lightMat);
-            lightBox.position.set(isRightSide ? -3 : 3, 8.8, 0);
-            group.add(lightBox);
+            // Sleek housing
+            const housing = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.18, 0.45), darkMetal);
+            housing.position.set(isRightSide ? -2.4 : 2.4, 9.7, 0);
+            group.add(housing);
+
+            // Warm Amber/Golden Luminaire (Stylized, soft glow, non-blinding)
+            const lampMat = new THREE.MeshBasicMaterial({ color: 0xffb84d });
+            const lamp = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.06, 0.35), lampMat);
+            lamp.position.set(isRightSide ? -2.4 : 2.4, 9.6, 0);
+            group.add(lamp);
 
             return group;
         }
 
-        // Palm Trees (Exact Original)
+        // Majestic Tropical Palm Trees (Matching Left Highway Border in Image 2)
+        function createPalmFrondTexture() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 64; canvas.height = 256;
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, 64, 256);
+
+            ctx.fillStyle = '#050208';
+            ctx.beginPath();
+            ctx.moveTo(30, 256);
+            ctx.lineTo(34, 256);
+            ctx.lineTo(32, 10);
+            ctx.fill();
+
+            for (let y = 30; y < 240; y += 8) {
+                const spread = Math.sin((y / 240) * Math.PI) * 26;
+                ctx.beginPath();
+                ctx.moveTo(32, y);
+                ctx.lineTo(32 - spread, y - 18);
+                ctx.lineTo(32 - spread + 4, y - 12);
+                ctx.lineTo(32, y + 4);
+                ctx.fill();
+
+                ctx.beginPath();
+                ctx.moveTo(32, y);
+                ctx.lineTo(32 + spread, y - 18);
+                ctx.lineTo(32 + spread - 4, y - 12);
+                ctx.lineTo(32, y + 4);
+                ctx.fill();
+            }
+            const tex = new THREE.CanvasTexture(canvas);
+            return tex;
+        }
+
+        const palmFrondTex = createPalmFrondTexture();
+        const palmFrondMat = new THREE.MeshBasicMaterial({
+            map: palmFrondTex,
+            transparent: true,
+            alphaTest: 0.15,
+            side: THREE.DoubleSide
+        });
+
         function createPalmTree() {
             const group = new THREE.Group();
-            const trunkMat = new THREE.MeshStandardMaterial({ color: 0x020202, roughness: 1.0 });
-            const leafMat = new THREE.MeshStandardMaterial({ color: 0x010201, side: THREE.DoubleSide });
+            const trunkMat = new THREE.MeshStandardMaterial({ color: 0x0a050d, roughness: 0.95 });
 
-            const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.5, 7), trunkMat);
-            trunk.position.y = 3.5;
+            // Tall curved trunk (14 units high)
+            const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.55, 14, 6), trunkMat);
+            trunk.position.set(0, 7, 0);
+            trunk.rotation.z = -0.07; // Natural lean toward sunset
             group.add(trunk);
 
-            for (let i = 0; i < 7; i++) {
-                const leaf = new THREE.Mesh(new THREE.PlaneGeometry(1.5, 4.5), leafMat);
-                leaf.rotation.x = -Math.PI / 3.5;
-                leaf.rotation.y = (Math.PI * 2 / 7) * i;
-                leaf.position.set(0, 7, 0);
-                leaf.geometry.translate(0, 2.2, 0);
-                group.add(leaf);
+            // Cascading tropical fronds with feathered silhouettes
+            const numFronds = 9;
+            for (let i = 0; i < numFronds; i++) {
+                const angle = (Math.PI * 2 / numFronds) * i;
+                const frond = new THREE.Mesh(new THREE.PlaneGeometry(3.2, 7.5), palmFrondMat);
+                frond.position.set(0, 13.8, 0);
+                frond.rotation.y = angle;
+                frond.rotation.x = -Math.PI / 3.4; // Drooping curved palm frond
+                frond.geometry.translate(0, 3.4, 0);
+                group.add(frond);
             }
             return group;
         }
 
-        // --- PROCEDURAL 3D SYNTHWAVE SKYSCRAPERS (Ultra-Lightweight Low-Poly Architecture) ---
-        // Generates true 3D skyscrapers with diverse architectural shapes and heights:
-        // Spire monoliths, angled crowns, stepped ziggurats, twin towers with skybridge, megaplex slabs, and obelisks.
-        // Reuses shared facade textures and basic neon accent materials (< 600 total triangles for entire city!)
+        // --- PROCEDURAL 3D SYNTHWAVE SKYSCRAPERS (Ultra-Lightweight Architecture) ---
         function createBuildingFacadeTexture() {
             const canvas = document.createElement('canvas');
             canvas.width = 256; canvas.height = 512;
             const ctx = canvas.getContext('2d');
 
-            // Dark sleek obsidian / midnight facade
+            // Deep Midnight Obsidian Facade
             const grad = ctx.createLinearGradient(0, 0, 0, 512);
-            grad.addColorStop(0, '#100422');
-            grad.addColorStop(0.5, '#090214');
-            grad.addColorStop(1, '#05010a');
+            grad.addColorStop(0, '#0c0317');
+            grad.addColorStop(0.5, '#07020e');
+            grad.addColorStop(1, '#030107');
             ctx.fillStyle = grad;
             ctx.fillRect(0, 0, 256, 512);
 
-            // Subtle dark vertical structural mullions
-            ctx.strokeStyle = '#1b0833';
+            // Vertical Structural Mullions
+            ctx.strokeStyle = '#180726';
             ctx.lineWidth = 1;
             for (let x = 0; x <= 256; x += 16) {
                 ctx.beginPath();
@@ -2492,7 +2530,7 @@
                 ctx.stroke();
             }
 
-            // Windows Grid (Neon Cyan, Pink, Warm Amber, Crisp White, Violet)
+            // Cyber Office Windows Matrix (Neon Cyan, Pink, Warm Amber, Ice White, Violet)
             const winColors = [
                 '#00f0ff', // Cyber Cyan
                 '#ff2ea6', // Hot Magenta
@@ -2516,7 +2554,7 @@
                 for (let c = 0; c < cols; c++) {
                     const x = 12 + (c * colStep);
                     const rand = Math.sin(r * 3.7 + c * 5.9);
-                    if (rand > 0.15) { // Lit windows matrix
+                    if (rand > 0.12) { // Lit windows matrix
                         const colorIdx = Math.floor(Math.abs(Math.sin(r * 1.9 + c * 4.3)) * winColors.length) % winColors.length;
                         ctx.fillStyle = winColors[colorIdx];
                         ctx.fillRect(x, y, winW, winH);
@@ -2545,64 +2583,74 @@
         const neonPurpleMat = new THREE.MeshBasicMaterial({ color: 0x9d00ff });
         const beaconRedMat = new THREE.MeshBasicMaterial({ color: 0xff0044 });
 
+        // Helper to add glowing vertical neon strip along building corner
+        function addCornerNeon(group, x, y, z, h, mat) {
+            const strip = new THREE.Mesh(new THREE.BoxGeometry(0.3, h, 0.3), mat);
+            strip.position.set(x, y, z);
+            group.add(strip);
+        }
+
         function build3DSkyscraper(type) {
             const group = new THREE.Group();
 
             switch (type % 6) {
                 case 0: {
-                    // Type 0: Soaring Spire Monolith (Setback tier + Spire Needle + Beacon)
-                    const w = 14, d = 14, h1 = 56, h2 = 20;
+                    // Type 0: Soaring Spire Needle (Setback tier + Needle Spire + Glowing Beacon)
+                    const w = 12, d = 12, h1 = 62, h2 = 24;
                     const base = new THREE.Mesh(new THREE.BoxGeometry(w, h1, d), buildingWallMat);
                     base.position.y = h1 / 2;
                     group.add(base);
 
-                    // Setback tier
+                    // Vertical neon corner light pipes
+                    addCornerNeon(group, -w / 2, h1 / 2, d / 2, h1, neonCyanMat);
+                    addCornerNeon(group, w / 2, h1 / 2, d / 2, h1, neonPinkMat);
+
                     const tier = new THREE.Mesh(new THREE.BoxGeometry(w * 0.65, h2, d * 0.65), buildingWallMat);
                     tier.position.y = h1 + (h2 / 2);
                     group.add(tier);
 
-                    // Glowing accent trims
-                    const trim1 = new THREE.Mesh(new THREE.BoxGeometry(w + 0.3, 0.4, d + 0.3), neonCyanMat);
+                    const trim1 = new THREE.Mesh(new THREE.BoxGeometry(w + 0.3, 0.5, d + 0.3), neonCyanMat);
                     trim1.position.y = h1;
                     group.add(trim1);
 
-                    const trim2 = new THREE.Mesh(new THREE.BoxGeometry(w * 0.65 + 0.3, 0.4, d * 0.65 + 0.3), neonPinkMat);
+                    const trim2 = new THREE.Mesh(new THREE.BoxGeometry(w * 0.65 + 0.3, 0.5, d * 0.65 + 0.3), neonPinkMat);
                     trim2.position.y = h1 + h2;
                     group.add(trim2);
 
-                    // Spire needle and tip beacon
-                    const spire = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.6, 22, 6), buildingWallMat);
-                    spire.position.y = h1 + h2 + 11;
+                    const spire = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.6, 26, 6), buildingWallMat);
+                    spire.position.y = h1 + h2 + 13;
                     group.add(spire);
 
                     const beacon = new THREE.Mesh(new THREE.SphereGeometry(0.8, 6, 4), beaconRedMat);
-                    beacon.position.y = h1 + h2 + 22;
+                    beacon.position.y = h1 + h2 + 26;
                     group.add(beacon);
                     break;
                 }
                 case 1: {
                     // Type 1: Angled Slanted Crown Megatower with Central Neon Spine
-                    const w = 16, d = 14, h = 64;
+                    const w = 13, d = 13, h = 76;
                     const body = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), buildingWallMat);
                     body.position.y = h / 2;
                     group.add(body);
 
+                    addCornerNeon(group, -w / 2, h / 2, d / 2, h, neonPinkMat);
+                    addCornerNeon(group, w / 2, h / 2, d / 2, h, neonPinkMat);
+
                     // Dual rooftop crown blade slabs
-                    const bladeLeft = new THREE.Mesh(new THREE.BoxGeometry(3, 14, d), buildingWallMat);
-                    bladeLeft.position.set(-6.5, h + 7, 0);
+                    const bladeLeft = new THREE.Mesh(new THREE.BoxGeometry(2.5, 16, d), buildingWallMat);
+                    bladeLeft.position.set(-w / 2 + 1.25, h + 8, 0);
                     group.add(bladeLeft);
 
-                    const bladeRight = new THREE.Mesh(new THREE.BoxGeometry(3, 14, d), buildingWallMat);
-                    bladeRight.position.set(6.5, h + 7, 0);
+                    const bladeRight = new THREE.Mesh(new THREE.BoxGeometry(2.5, 16, d), buildingWallMat);
+                    bladeRight.position.set(w / 2 - 1.25, h + 8, 0);
                     group.add(bladeRight);
 
-                    // Crown neon trims
-                    const crownTrimLeft = new THREE.Mesh(new THREE.BoxGeometry(3.2, 0.5, d + 0.2), neonPinkMat);
-                    crownTrimLeft.position.set(-6.5, h + 14, 0);
+                    const crownTrimLeft = new THREE.Mesh(new THREE.BoxGeometry(2.7, 0.5, d + 0.2), neonCyanMat);
+                    crownTrimLeft.position.set(-w / 2 + 1.25, h + 16, 0);
                     group.add(crownTrimLeft);
 
-                    const crownTrimRight = new THREE.Mesh(new THREE.BoxGeometry(3.2, 0.5, d + 0.2), neonPinkMat);
-                    crownTrimRight.position.set(6.5, h + 14, 0);
+                    const crownTrimRight = new THREE.Mesh(new THREE.BoxGeometry(2.7, 0.5, d + 0.2), neonCyanMat);
+                    crownTrimRight.position.set(w / 2 - 1.25, h + 16, 0);
                     group.add(crownTrimRight);
 
                     // Vertical cyan illuminated elevator spine down front facade
@@ -2613,9 +2661,9 @@
                 }
                 case 2: {
                     // Type 2: Stepped Ziggurat (3 Tiers with Neon Ledge Trims + Antennas)
-                    const t1_w = 20, t1_d = 16, t1_h = 24;
-                    const t2_w = 14, t2_d = 12, t2_h = 22;
-                    const t3_w = 9, t3_d = 9, t3_h = 18;
+                    const t1_w = 16, t1_d = 14, t1_h = 32;
+                    const t2_w = 11, t2_d = 10, t2_h = 26;
+                    const t3_w = 7, t3_d = 7, t3_h = 20;
 
                     const tier1 = new THREE.Mesh(new THREE.BoxGeometry(t1_w, t1_h, t1_d), buildingWallMat);
                     tier1.position.y = t1_h / 2;
@@ -2629,40 +2677,41 @@
                     tier3.position.y = t1_h + t2_h + (t3_h / 2);
                     group.add(tier3);
 
-                    // Ledge Trims
-                    const trim1 = new THREE.Mesh(new THREE.BoxGeometry(t1_w + 0.3, 0.4, t1_d + 0.3), neonPinkMat);
+                    // Glowing Ledge Trims
+                    const trim1 = new THREE.Mesh(new THREE.BoxGeometry(t1_w + 0.3, 0.5, t1_d + 0.3), neonPinkMat);
                     trim1.position.y = t1_h;
                     group.add(trim1);
 
-                    const trim2 = new THREE.Mesh(new THREE.BoxGeometry(t2_w + 0.3, 0.4, t2_d + 0.3), neonAmberMat);
+                    const trim2 = new THREE.Mesh(new THREE.BoxGeometry(t2_w + 0.3, 0.5, t2_d + 0.3), neonAmberMat);
                     trim2.position.y = t1_h + t2_h;
                     group.add(trim2);
 
-                    const trim3 = new THREE.Mesh(new THREE.BoxGeometry(t3_w + 0.3, 0.4, t3_d + 0.3), neonCyanMat);
+                    const trim3 = new THREE.Mesh(new THREE.BoxGeometry(t3_w + 0.3, 0.5, t3_d + 0.3), neonCyanMat);
                     trim3.position.y = t1_h + t2_h + t3_h;
                     group.add(trim3);
 
                     // Twin Rooftop Antennas
-                    const ant1 = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.25, 9, 4), buildingWallMat);
-                    ant1.position.set(-2.8, t1_h + t2_h + t3_h + 4.5, 0);
+                    const topY = t1_h + t2_h + t3_h;
+                    const ant1 = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.25, 12, 4), buildingWallMat);
+                    ant1.position.set(-2.2, topY + 6, 0);
                     group.add(ant1);
 
-                    const ant2 = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.25, 9, 4), buildingWallMat);
-                    ant2.position.set(2.8, t1_h + t2_h + t3_h + 4.5, 0);
+                    const ant2 = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.25, 12, 4), buildingWallMat);
+                    ant2.position.set(2.2, topY + 6, 0);
                     group.add(ant2);
 
-                    const b1 = new THREE.Mesh(new THREE.SphereGeometry(0.6, 6, 4), beaconRedMat);
-                    b1.position.set(-2.8, t1_h + t2_h + t3_h + 9, 0);
+                    const b1 = new THREE.Mesh(new THREE.SphereGeometry(0.65, 6, 4), beaconRedMat);
+                    b1.position.set(-2.2, topY + 12, 0);
                     group.add(b1);
 
-                    const b2 = new THREE.Mesh(new THREE.SphereGeometry(0.6, 6, 4), beaconRedMat);
-                    b2.position.set(2.8, t1_h + t2_h + t3_h + 9, 0);
+                    const b2 = new THREE.Mesh(new THREE.SphereGeometry(0.65, 6, 4), beaconRedMat);
+                    b2.position.set(2.2, topY + 12, 0);
                     group.add(b2);
                     break;
                 }
                 case 3: {
                     // Type 3: Futuristic Twin Towers with Skybridge
-                    const tw = 7, td = 9, th1 = 66, th2 = 78, gap = 5;
+                    const tw = 6, td = 8, th1 = 76, th2 = 92, gap = 5;
                     const leftTower = new THREE.Mesh(new THREE.BoxGeometry(tw, th1, td), buildingWallMat);
                     leftTower.position.set(-(tw / 2 + gap / 2), th1 / 2, 0);
                     group.add(leftTower);
@@ -2671,74 +2720,68 @@
                     rightTower.position.set(tw / 2 + gap / 2, th2 / 2, 0);
                     group.add(rightTower);
 
+                    addCornerNeon(group, -(tw + gap / 2), th1 / 2, td / 2, th1, neonCyanMat);
+                    addCornerNeon(group, (tw + gap / 2), th2 / 2, td / 2, th2, neonPinkMat);
+
                     // Mid Connecting Skybridge
-                    const bridgeY = 44;
+                    const bridgeY = 48;
                     const bridge = new THREE.Mesh(new THREE.BoxGeometry(gap + 0.4, 4.5, 6), buildingWallMat);
                     bridge.position.set(0, bridgeY, 0);
                     group.add(bridge);
 
-                    // Skybridge neon underglow
-                    const bridgeGlow = new THREE.Mesh(new THREE.BoxGeometry(gap + 0.6, 0.35, 6.2), neonCyanMat);
+                    const bridgeGlow = new THREE.Mesh(new THREE.BoxGeometry(gap + 0.6, 0.4, 6.2), neonCyanMat);
                     bridgeGlow.position.set(0, bridgeY - 2.3, 0);
                     group.add(bridgeGlow);
 
                     // Upper connecting aerial bridge
-                    const upperBridge = new THREE.Mesh(new THREE.BoxGeometry(gap + 0.4, 2.5, 4), neonPurpleMat);
-                    upperBridge.position.set(0, 58, 0);
+                    const upperBridge = new THREE.Mesh(new THREE.BoxGeometry(gap + 0.4, 3, 4), neonPurpleMat);
+                    upperBridge.position.set(0, 68, 0);
                     group.add(upperBridge);
 
-                    // Spire on taller right tower
-                    const spire = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.4, 14, 4), buildingWallMat);
-                    spire.position.set(tw / 2 + gap / 2, th2 + 7, 0);
+                    const spire = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.4, 18, 4), buildingWallMat);
+                    spire.position.set(tw / 2 + gap / 2, th2 + 9, 0);
                     group.add(spire);
 
                     const beacon = new THREE.Mesh(new THREE.SphereGeometry(0.7, 6, 4), beaconRedMat);
-                    beacon.position.set(tw / 2 + gap / 2, th2 + 14, 0);
+                    beacon.position.set(tw / 2 + gap / 2, th2 + 18, 0);
                     group.add(beacon);
                     break;
                 }
                 case 4: {
-                    // Type 4: Megaplex Cyber Slab (Wide Anchor Block + Helipad Deck)
-                    const w = 26, d = 14, h = 42;
+                    // Type 4: Megaplex Cyber Slab (Anchor Block + Helipad Deck + Vertical Neon)
+                    const w = 18, d = 13, h = 54;
                     const slab = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), buildingWallMat);
                     slab.position.y = h / 2;
                     group.add(slab);
 
-                    // Penthouse Deck
-                    const pw = 16, pd = 10, ph = 10;
+                    addCornerNeon(group, -w / 2, h / 2, d / 2, h, neonAmberMat);
+                    addCornerNeon(group, w / 2, h / 2, d / 2, h, neonCyanMat);
+
+                    const pw = 12, pd = 9, ph = 12;
                     const penthouse = new THREE.Mesh(new THREE.BoxGeometry(pw, ph, pd), buildingWallMat);
                     penthouse.position.y = h + (ph / 2);
                     group.add(penthouse);
 
-                    // Penthouse neon trim
-                    const pTrim = new THREE.Mesh(new THREE.BoxGeometry(pw + 0.3, 0.4, pd + 0.3), neonAmberMat);
+                    const pTrim = new THREE.Mesh(new THREE.BoxGeometry(pw + 0.3, 0.5, pd + 0.3), neonAmberMat);
                     pTrim.position.y = h + ph;
                     group.add(pTrim);
 
-                    // Rooftop Helipad Ring / Structure
-                    const helipad = new THREE.Mesh(new THREE.CylinderGeometry(4.5, 4.5, 0.4, 16), neonCyanMat);
+                    const helipad = new THREE.Mesh(new THREE.CylinderGeometry(4.0, 4.0, 0.4, 16), neonCyanMat);
                     helipad.position.y = h + ph + 0.4;
                     group.add(helipad);
-
-                    // Dual vertical glowing neon strips on facade
-                    const strip1 = new THREE.Mesh(new THREE.BoxGeometry(0.3, h, 0.2), neonPinkMat);
-                    strip1.position.set(-7, h / 2, (d / 2) + 0.1);
-                    group.add(strip1);
-
-                    const strip2 = new THREE.Mesh(new THREE.BoxGeometry(0.3, h, 0.2), neonCyanMat);
-                    strip2.position.set(7, h / 2, (d / 2) + 0.1);
-                    group.add(strip2);
                     break;
                 }
                 case 5: {
-                    // Type 5: Obelisk Tower with Flanking Buttress Wings
-                    const cw = 11, cd = 11, ch = 72;
+                    // Type 5: Diamond Obelisk Tower with Pyramid Crown
+                    const cw = 10, cd = 10, ch = 84;
                     const core = new THREE.Mesh(new THREE.BoxGeometry(cw, ch, cd), buildingWallMat);
                     core.position.y = ch / 2;
                     group.add(core);
 
-                    // Left & Right Buttress Wings
-                    const bw = 5, bh = 36, bd = 11;
+                    addCornerNeon(group, -cw / 2, ch / 2, cd / 2, ch, neonPinkMat);
+                    addCornerNeon(group, cw / 2, ch / 2, cd / 2, ch, neonCyanMat);
+
+                    const bw = 4, bh = 42, bd = 10;
                     const buttressL = new THREE.Mesh(new THREE.BoxGeometry(bw, bh, bd), buildingWallMat);
                     buttressL.position.set(-(cw / 2 + bw / 2), bh / 2, 0);
                     group.add(buttressL);
@@ -2747,33 +2790,33 @@
                     buttressR.position.set(cw / 2 + bw / 2, bh / 2, 0);
                     group.add(buttressR);
 
-                    // Glowing Buttress Shoulder Trims
-                    const bTrimL = new THREE.Mesh(new THREE.BoxGeometry(bw + 0.2, 0.4, bd + 0.2), neonCyanMat);
+                    const bTrimL = new THREE.Mesh(new THREE.BoxGeometry(bw + 0.2, 0.5, bd + 0.2), neonCyanMat);
                     bTrimL.position.set(-(cw / 2 + bw / 2), bh, 0);
                     group.add(bTrimL);
 
-                    const bTrimR = new THREE.Mesh(new THREE.BoxGeometry(bw + 0.2, 0.4, bd + 0.2), neonCyanMat);
+                    const bTrimR = new THREE.Mesh(new THREE.BoxGeometry(bw + 0.2, 0.5, bd + 0.2), neonCyanMat);
                     bTrimR.position.set(cw / 2 + bw / 2, bh, 0);
                     group.add(bTrimR);
 
-                    // Obelisk Crown Pyramid
-                    const crown = new THREE.Mesh(new THREE.CylinderGeometry(0.1, cw * 0.71, 14, 4), buildingWallMat);
+                    const crown = new THREE.Mesh(new THREE.CylinderGeometry(0.1, cw * 0.71, 16, 4), buildingWallMat);
                     crown.rotation.y = Math.PI / 4;
-                    crown.position.y = ch + 7;
+                    crown.position.y = ch + 8;
                     group.add(crown);
 
                     const beacon = new THREE.Mesh(new THREE.SphereGeometry(0.7, 6, 4), beaconRedMat);
-                    beacon.position.y = ch + 14.5;
+                    beacon.position.set(0, ch + 16.5, 0);
                     group.add(beacon);
                     break;
                 }
             }
-
             return group;
         }
 
         const sceneryObjects = [];
-        for (let z = 10; z > -400; z -= 40) {
+
+        // Highway Light Poles & Palm Trees
+        for (let z = 10; z > -400; z -= 45) {
+            // Sleek Light Poles along road edges
             const leftPole = createLightPole(false);
             leftPole.position.set(-12.5, 0, z);
             scene.add(leftPole);
@@ -2782,40 +2825,52 @@
             rightPole.position.set(12.5, 0, z);
             scene.add(rightPole);
 
+            // Tall Tropical Palm Trees (Iconic Left Highway Border from Image 2!)
             const leftTree = createPalmTree();
-            leftTree.position.set(-16, 0, z - 20);
+            leftTree.position.set(-16.5, 0, z - 22);
             scene.add(leftTree);
 
-            const rightTree = createPalmTree();
-            rightTree.position.set(16, 0, z - 20);
-            scene.add(rightTree);
-
-            sceneryObjects.push(leftPole, rightPole, leftTree, rightTree);
+            sceneryObjects.push(leftPole, rightPole, leftTree);
         }
 
-        // Spawn 3D Buildings along Highway (Right & Left Skyline matching Visual Reference)
-        // Right Side Skyline (Dominant futuristic skyscrapers)
+        // --- RIGHT SIDE METROPOLIS SKYLINE (Towering Cyberpunk Cityscape) ---
+        // Row 1: Midground Skyscrapers (x: 38 to 48)
         for (let i = 0; i < 9; i++) {
-            const z = 10 - (i * 45); // Spaced from z = 10 to -350
+            const z = 10 - (i * 45);
             const type = i % 6;
-            const x = 30 + (i % 3) * 5; // X: 30, 35, 40 (behind light poles/palms)
+            const x = 38 + (i % 3) * 5; // X: 38, 43, 48
 
             const bGroup = build3DSkyscraper(type);
             bGroup.position.set(x, 0, z);
-            bGroup.rotation.y = -0.15 + (i % 2) * 0.05; // Slightly angled toward highway
+            bGroup.rotation.y = -0.12 + (i % 2) * 0.04;
             scene.add(bGroup);
             sceneryObjects.push(bGroup);
         }
 
-        // Left Side Skyline (Balancing horizon)
-        for (let i = 0; i < 7; i++) {
-            const z = -15 - (i * 55); // Spaced from z = -15 to -345
-            const type = (i + 2) % 6;
-            const x = -36 - (i % 3) * 6; // X: -36, -42, -48
+        // Row 2: Background Megatowers & Spire Skyline (x: 65 to 88, staggered)
+        for (let i = 0; i < 8; i++) {
+            const z = -10 - (i * 50);
+            const type = (i + 3) % 6;
+            const x = 65 + (i % 3) * 8; // X: 65, 73, 81
 
             const bGroup = build3DSkyscraper(type);
             bGroup.position.set(x, 0, z);
-            bGroup.rotation.y = 0.15 - (i % 2) * 0.05; // Slightly angled toward highway
+            bGroup.scale.set(1.15, 1.25, 1.15); // Taller, majestic background scale
+            bGroup.rotation.y = -0.15;
+            scene.add(bGroup);
+            sceneryObjects.push(bGroup);
+        }
+
+        // --- LEFT SIDE DISTANT SILHOUETTES (Far Back - Keeping Sunset Open) ---
+        for (let i = 0; i < 5; i++) {
+            const z = -30 - (i * 75);
+            const type = (i + 1) % 6;
+            const x = -70 - (i % 2) * 12; // Far back: -70 to -82
+
+            const bGroup = build3DSkyscraper(type);
+            bGroup.position.set(x, 0, z);
+            bGroup.scale.set(0.9, 0.85, 0.9);
+            bGroup.rotation.y = 0.15;
             scene.add(bGroup);
             sceneryObjects.push(bGroup);
         }
@@ -3591,27 +3646,32 @@
         function togglePause() {
             if (gameState === 'playing') {
                 gameState = 'paused';
+                if (typeof activeLeftTouches !== 'undefined') { activeLeftTouches = 0; activeRightTouches = 0; updateTapSteeringUI(); }
                 if (pauseHeading) pauseHeading.innerText = 'PAUSED';
                 if (resumeBtn) resumeBtn.innerText = 'RESUME (ESC)';
                 pauseScreen.classList.remove('hidden');
-                pauseToggleBtn.innerText = '▶️ PLAY';
+                const pIcon = document.getElementById('pause-btn-icon');
+                const pText = document.getElementById('pause-btn-text');
+                if (pIcon) pIcon.innerText = '▶';
+                if (pText) pText.innerText = 'PLAY';
                 stopEngineSound();
             } else if (gameState === 'paused') {
                 gameState = 'playing';
                 pauseScreen.classList.add('hidden');
-                pauseToggleBtn.innerText = '⏸️ PAUSE';
+                const pIcon = document.getElementById('pause-btn-icon');
+                const pText = document.getElementById('pause-btn-text');
+                if (pIcon) pIcon.innerText = '⏸';
+                if (pText) pText.innerText = 'PAUSE';
                 startEngineSound();
                 clock.getDelta(); // Prevent delta-time jump upon resume
             }
         }
 
-        pauseToggleBtn.addEventListener('click', togglePause);
-
-        resumeBtn.addEventListener('click', () => {
+        bindHudButton(pauseToggleBtn, togglePause);
+        bindHudButton(resumeBtn, () => {
             if (gameState === 'playing' || gameState === 'paused') {
                 togglePause();
             } else {
-                // If opened from garage/start screen
                 pauseScreen.classList.add('hidden');
                 if (pauseHeading) pauseHeading.innerText = 'PAUSED';
                 if (resumeBtn) resumeBtn.innerText = 'RESUME (ESC)';
@@ -3777,9 +3837,9 @@
             }
         }
 
-        if (ctrlPcBtn) ctrlPcBtn.addEventListener('click', () => setControlMode('pc'));
-        if (ctrlTapBtn) ctrlTapBtn.addEventListener('click', () => setControlMode('tap'));
-        if (ctrlGyroBtn) ctrlGyroBtn.addEventListener('click', () => setControlMode('gyro'));
+        bindHudButton(ctrlPcBtn, () => setControlMode('pc'));
+        bindHudButton(ctrlTapBtn, () => setControlMode('tap'));
+        bindHudButton(ctrlGyroBtn, () => setControlMode('gyro'));
 
         // Gyroscope Device Orientation Handler
         function handleGyroOrientation(e) {
@@ -3868,16 +3928,17 @@
         function bindTapZone(zone, isLeft) {
             if (!zone) return;
             const start = (e) => {
-                e.preventDefault();
+                if (gameState !== 'playing') return;
+                if (e.cancelable) e.preventDefault();
                 tryRestoreFullscreen();
-                if (isLeft) activeLeftTouches++;
-                else activeRightTouches++;
+                if (isLeft) activeLeftTouches = 1;
+                else activeRightTouches = 1;
                 updateTapSteeringUI();
             };
             const end = (e) => {
-                e.preventDefault();
-                if (isLeft) activeLeftTouches = Math.max(0, activeLeftTouches - 1);
-                else activeRightTouches = Math.max(0, activeRightTouches - 1);
+                if (e.cancelable) e.preventDefault();
+                if (isLeft) activeLeftTouches = 0;
+                else activeRightTouches = 0;
                 updateTapSteeringUI();
             };
 
@@ -3887,6 +3948,7 @@
 
             // Mouse click/hold fallback for testing tap steering on desktop
             zone.addEventListener('mousedown', (e) => {
+                if (gameState !== 'playing') return;
                 if (e.button === 0) {
                     tryRestoreFullscreen();
                     if (isLeft) activeLeftTouches = 1;
@@ -3954,6 +4016,15 @@
             window.addEventListener(evt, tryRestoreFullscreen, { capture: true, passive: true });
         });
 
+        function updateFullscreenBtnLabel() {
+            if (!fullscreenBtn) return;
+            const isFs = !!document.fullscreenElement;
+            const fsIcon = document.getElementById('fs-btn-icon');
+            const fsText = document.getElementById('fs-btn-text');
+            if (fsIcon) fsIcon.innerText = isFs ? '✕' : '⛶';
+            if (fsText) fsText.innerText = isFs ? 'EXIT FULL' : 'FULLSCREEN';
+        }
+
         function toggleFullscreen() {
             if (!document.fullscreenElement) {
                 const req = document.documentElement.requestFullscreen ||
@@ -3961,7 +4032,7 @@
                             document.documentElement.msRequestFullscreen;
                 if (req) {
                     req.call(document.documentElement).then(() => {
-                        if (fullscreenBtn) fullscreenBtn.innerText = '⛶ EXIT FULL';
+                        updateFullscreenBtnLabel();
                         localStorage.setItem('horizon_persistent_fullscreen', 'true');
                         sessionStorage.setItem('horizon_persistent_fullscreen', 'true');
                     }).catch(err => console.warn(err));
@@ -3972,20 +4043,18 @@
                              document.msExitFullscreen;
                 if (exit) {
                     exit.call(document).then(() => {
-                        if (fullscreenBtn) fullscreenBtn.innerText = '⛶ FULLSCREEN';
+                        updateFullscreenBtnLabel();
                         localStorage.setItem('horizon_persistent_fullscreen', 'false');
                         sessionStorage.removeItem('horizon_persistent_fullscreen');
                     }).catch(err => console.warn(err));
                 }
             }
         }
-        if (fullscreenBtn) fullscreenBtn.addEventListener('click', toggleFullscreen);
+        bindHudButton(fullscreenBtn, toggleFullscreen);
 
         document.addEventListener('fullscreenchange', () => {
-            if (!document.fullscreenElement) {
-                if (fullscreenBtn) fullscreenBtn.innerText = '⛶ FULLSCREEN';
-            } else {
-                if (fullscreenBtn) fullscreenBtn.innerText = '⛶ EXIT FULL';
+            updateFullscreenBtnLabel();
+            if (document.fullscreenElement) {
                 localStorage.setItem('horizon_persistent_fullscreen', 'true');
                 sessionStorage.setItem('horizon_persistent_fullscreen', 'true');
             }
@@ -4050,6 +4119,10 @@
 
         document.getElementById('start-btn').addEventListener('click', resetGame);
         document.getElementById('restart-btn').addEventListener('click', resetGame);
+
+        if (window.location.search.includes('autostart=1')) {
+            setTimeout(resetGame, 600);
+        }
 
         // Pre-allocated static vectors (ZERO runtime garbage collection)
         const playerBox = new THREE.Box3();
@@ -4117,8 +4190,8 @@
                 playerBox.setFromCenterAndSize(_tempVecPlayer, playerBoxSize);
 
                 const roadMove = speed * dt;
-                sideGrid.position.z += roadMove;
-                if (sideGrid.position.z > 5) sideGrid.position.z -= 5;
+                // Seamlessly scroll the synthwave wireframe grid on black squares
+                gridTex.offset.y -= (roadMove / 5.0);
 
                 for (let i = 0; i < dashedLines.length; i++) {
                     const dash = dashedLines[i];
@@ -4322,7 +4395,7 @@
         if (muteToggleBtn) {
             // Apply saved mute preference on load
             setEngineMute(isEngineMuted);
-            muteToggleBtn.addEventListener('click', () => {
+            bindHudButton(muteToggleBtn, () => {
                 setEngineMute(!isEngineMuted);
             });
         }

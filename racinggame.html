@@ -250,46 +250,91 @@
             letter-spacing: 1px;
         }
 
-        /* Modern Frosted Touch Controls */
-        #mobile-controls {
-            position: absolute;
-            bottom: 30px;
+        /* --------------------------------------------------
+           FULLSCREEN INVISIBLE TAP STEERING ZONES (NO BUTTONS)
+        -------------------------------------------------- */
+        .tap-steering-container {
+            position: fixed;
+            top: 0;
             left: 0;
-            width: 100%;
-            padding: 0 40px;
-            box-sizing: border-box;
-            display: flex;
-            justify-content: space-between;
+            width: 100vw;
+            height: 100vh;
             pointer-events: none;
-            z-index: 15;
-            transition: opacity 0.2s;
-        }
-
-        .modern-touch-btn {
-            width: 84px;
-            height: 84px;
-            border-radius: 50%;
-            background: rgba(18, 10, 30, 0.65);
-            border: 2px solid #FF2DAA;
-            color: #ffffff;
+            z-index: 12;
             display: flex;
-            align-items: center;
-            justify-content: center;
-            pointer-events: auto;
             user-select: none;
-            touch-action: none;
-            cursor: pointer;
-            backdrop-filter: blur(14px);
-            box-shadow: 0 0 25px rgba(255, 45, 170, 0.45), inset 0 0 15px rgba(255, 45, 170, 0.25);
-            transition: transform 0.1s ease, background 0.1s ease;
-            outline: none;
+            -webkit-user-select: none;
         }
 
-        .modern-touch-btn:active,
-        .modern-touch-btn.pressed {
-            background: rgba(255, 45, 170, 0.55);
-            transform: scale(0.92);
-            box-shadow: 0 0 35px #FF2DAA;
+        .tap-zone {
+            flex: 1;
+            height: 100%;
+            pointer-events: auto;
+            touch-action: none;
+            position: relative;
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .tap-zone-left {
+            border-right: 1px dashed rgba(255, 255, 255, 0.03);
+        }
+
+        /* Subtle neon edge glow when steering is active - zero buttons blocking view */
+        .tap-edge-glow {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 18px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.12s ease;
+        }
+
+        .left-glow {
+            left: 0;
+            background: linear-gradient(90deg, rgba(255, 0, 128, 0.45) 0%, transparent 100%);
+            box-shadow: inset 4px 0 18px rgba(255, 0, 128, 0.6);
+        }
+
+        .right-glow {
+            right: 0;
+            background: linear-gradient(-90deg, rgba(0, 240, 255, 0.45) 0%, transparent 100%);
+            box-shadow: inset -4px 0 18px rgba(0, 240, 255, 0.6);
+        }
+
+        .tap-zone.active .tap-edge-glow {
+            opacity: 1;
+        }
+
+        /* Sleek Control Mode Toast */
+        .control-toast {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%) translateY(20px);
+            background: rgba(14, 8, 24, 0.92);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid #00F0FF;
+            color: #FFFFFF;
+            font-family: 'Orbitron', 'Rajdhani', sans-serif;
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            padding: 6px 16px;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.4);
+            pointer-events: none;
+            z-index: 999999;
+            opacity: 0;
+            transition: opacity 0.25s ease, transform 0.25s ease;
+            white-space: nowrap;
+        }
+
+        .control-toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
         }
 
         /* --------------------------------------------------
@@ -1221,21 +1266,6 @@
             .speed-unit {
                 font-size: 0.48rem !important;
             }
-
-            #mobile-controls {
-                bottom: 10px !important;
-                padding: 0 16px !important;
-            }
-
-            .modern-touch-btn {
-                width: 58px !important;
-                height: 58px !important;
-            }
-
-            .modern-touch-btn svg {
-                width: 22px !important;
-                height: 22px !important;
-            }
         }
 
         /* STRICT ZERO-SCROLL VIEWPORT SCALING FOR MOBILE LANDSCAPE (HEIGHT <= 540px) */
@@ -1632,20 +1662,28 @@
                 </div>
 
                 <!-- Modern Segmented Control Switch (PC / Touch) -->
+                <!-- Modern Segmented Control Switch (PC / Tap / Gyro) -->
                 <div class="hud-control-switch">
                     <button id="ctrl-pc-btn" class="hud-toggle-btn active" title="Keyboard Steering (Arrows / A & D)">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
                             <path
                                 d="M20 18c1.1 0 1.99-.9 1.99-2L22 5c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2H0c0 1.1.9 2 2 2h20c1.1 0 2-.9 2-2h-4zM4 5h16v11H4V5z" />
                         </svg>
                         <span>PC</span>
                     </button>
-                    <button id="ctrl-mobile-btn" class="hud-toggle-btn" title="Touch On-Screen Controls">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                    <button id="ctrl-tap-btn" class="hud-toggle-btn" title="Tap Left/Right Screen Sides (No Buttons)">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
                             <path
-                                d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z" />
+                                d="M9 11.24V7.5a2.5 2.5 0 0 1 5 0v3.74c1.21-.81 2-2.18 2-3.74a4.5 4.5 0 0 0-9 0c0 1.56.79 2.93 2 3.74zm9.84 4.63l-4.54-2.26a1.5 1.5 0 0 0-.67-.16h-.63V7.5a1.5 1.5 0 0 0-3 0v8.68l-3.36-.71c-.34-.07-.7.04-.94.3l-1.07 1.07 4.7 4.7c.39.39.92.62 1.48.62h6.77c1.02 0 1.88-.74 2.03-1.75l.63-4.42c.09-.64-.17-1.28-.6-1.72z" />
                         </svg>
-                        <span>TOUCH</span>
+                        <span>TAP</span>
+                    </button>
+                    <button id="ctrl-gyro-btn" class="hud-toggle-btn" title="Tilt Device to Steer (Gyroscope)">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                            <path
+                                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z" />
+                        </svg>
+                        <span>GYRO</span>
                     </button>
                 </div>
             </div>
@@ -1673,23 +1711,20 @@
                 </div>
             </div>
         </header>
+    </div>
 
-        <!-- Modern Frosted Glass Touch Controls -->
-        <div id="mobile-controls" class="hidden">
-            <button id="touch-left" class="modern-touch-btn" aria-label="Steer Left">
-                <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"
-                    stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="15 18 9 12 15 6"></polyline>
-                </svg>
-            </button>
-            <button id="touch-right" class="modern-touch-btn" aria-label="Steer Right">
-                <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"
-                    stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="9 18 15 12 9 6"></polyline>
-                </svg>
-            </button>
+    <!-- Fullscreen Invisible Tap Steering Zones (No Buttons Covering The Screen) -->
+    <div id="tap-steering-container" class="tap-steering-container" style="display: none;">
+        <div id="tap-zone-left" class="tap-zone tap-zone-left" aria-label="Steer Left">
+            <div class="tap-edge-glow left-glow"></div>
+        </div>
+        <div id="tap-zone-right" class="tap-zone tap-zone-right" aria-label="Steer Right">
+            <div class="tap-edge-glow right-glow"></div>
         </div>
     </div>
+
+    <!-- Sleek Control Mode Toast -->
+    <div id="control-toast" class="control-toast">TAP CONTROLS ACTIVE</div>
 
     <!-- Pre-Race / Car Showcase Screen (Matches Visual Reference Exactly) -->
     <div id="start-screen" class="screen">
@@ -3187,10 +3222,13 @@
                 gameState = 'start';
                 stopEngineSound();
             }
-            if (document.fullscreenElement) {
+            const isFs = (document.fullscreenElement !== null) ||
+                         (localStorage.getItem('horizon_persistent_fullscreen') === 'true');
+            if (isFs) {
                 localStorage.setItem('horizon_persistent_fullscreen', 'true');
+                sessionStorage.setItem('horizon_persistent_fullscreen', 'true');
             }
-            window.location.href = 'index.html';
+            window.location.href = isFs ? 'index.html?fullscreen=1' : 'index.html';
         }
 
         if (startHomeBtn) startHomeBtn.addEventListener('click', returnToHome);
@@ -3683,58 +3721,260 @@
             });
         }
 
-        // --- PC VS MOBILE CONTROLS SWITCH ---
-        let controlMode = 'pc';
-        const ctrlPcBtn = document.getElementById('ctrl-pc-btn');
-        const ctrlMobileBtn = document.getElementById('ctrl-mobile-btn');
-        const mobileControls = document.getElementById('mobile-controls');
-        const touchLeft = document.getElementById('touch-left');
-        const touchRight = document.getElementById('touch-right');
+        // --- CONTROL TOAST FEEDBACK ---
+        const controlToastEl = document.getElementById('control-toast');
+        let controlToastTimer = null;
+        function showControlToast(msg, borderColor) {
+            if (!controlToastEl) return;
+            controlToastEl.innerText = msg;
+            controlToastEl.style.borderColor = borderColor || '#00F0FF';
+            controlToastEl.classList.add('show');
+            if (controlToastTimer) clearTimeout(controlToastTimer);
+            controlToastTimer = setTimeout(() => {
+                controlToastEl.classList.remove('show');
+            }, 1800);
+        }
 
-        function setControlMode(mode) {
+        // --- CONTROL MODES: PC (KEYBOARD) / TAP (SCREEN SIDES) / GYRO (DEVICE TILT) ---
+        let controlMode = 'pc';
+        let gyroTilt = 0;
+        let gyroActive = false;
+        let gyroListenerActive = false;
+
+        const ctrlPcBtn = document.getElementById('ctrl-pc-btn');
+        const ctrlTapBtn = document.getElementById('ctrl-tap-btn');
+        const ctrlGyroBtn = document.getElementById('ctrl-gyro-btn');
+        const tapContainer = document.getElementById('tap-steering-container');
+        const tapZoneLeft = document.getElementById('tap-zone-left');
+        const tapZoneRight = document.getElementById('tap-zone-right');
+
+        function setControlMode(mode, silent) {
             controlMode = mode;
-            if (mode === 'mobile') {
-                ctrlMobileBtn.classList.add('active');
-                ctrlPcBtn.classList.remove('active');
-                mobileControls.classList.remove('hidden');
+            try {
+                localStorage.setItem('horizon_control_mode', mode);
+            } catch (e) {}
+
+            if (ctrlPcBtn) ctrlPcBtn.classList.toggle('active', mode === 'pc');
+            if (ctrlTapBtn) ctrlTapBtn.classList.toggle('active', mode === 'tap');
+            if (ctrlGyroBtn) ctrlGyroBtn.classList.toggle('active', mode === 'gyro');
+
+            // Tap steering zones are enabled in 'tap' and 'gyro' modes
+            if (tapContainer) {
+                tapContainer.style.display = (mode === 'pc') ? 'none' : 'flex';
+            }
+
+            if (mode === 'gyro') {
+                enableGyro();
+                if (!silent) showControlToast('GYROSCOPE ACTIVE • TILT TO STEER', '#00F0FF');
+            } else if (mode === 'tap') {
+                gyroTilt = 0;
+                if (!silent) showControlToast('TAP CONTROLS • TOUCH SCREEN SIDES', '#FF0080');
             } else {
-                ctrlPcBtn.classList.add('active');
-                ctrlMobileBtn.classList.remove('active');
-                mobileControls.classList.add('hidden');
+                gyroTilt = 0;
                 keys.ArrowLeft = false;
                 keys.ArrowRight = false;
+                if (!silent) showControlToast('PC KEYBOARD • ARROWS / A & D', '#FFFFFF');
             }
         }
 
-        ctrlPcBtn.addEventListener('click', () => setControlMode('pc'));
-        ctrlMobileBtn.addEventListener('click', () => setControlMode('mobile'));
+        if (ctrlPcBtn) ctrlPcBtn.addEventListener('click', () => setControlMode('pc'));
+        if (ctrlTapBtn) ctrlTapBtn.addEventListener('click', () => setControlMode('tap'));
+        if (ctrlGyroBtn) ctrlGyroBtn.addEventListener('click', () => setControlMode('gyro'));
 
-        function bindTouch(btn, key) {
-            const start = (e) => { e.preventDefault(); keys[key] = true; btn.classList.add('pressed'); };
-            const end = (e) => { e.preventDefault(); keys[key] = false; btn.classList.remove('pressed'); };
-            btn.addEventListener('touchstart', start, { passive: false });
-            btn.addEventListener('touchend', end, { passive: false });
-            btn.addEventListener('touchcancel', end, { passive: false });
-            btn.addEventListener('mousedown', start);
-            btn.addEventListener('mouseup', end);
-            btn.addEventListener('mouseleave', end);
+        // Gyroscope Device Orientation Handler
+        function handleGyroOrientation(e) {
+            if (controlMode !== 'gyro') return;
+            if (gameState !== 'playing') return;
+
+            let orientAngle = 0;
+            if (screen.orientation && typeof screen.orientation.angle === 'number') {
+                orientAngle = screen.orientation.angle;
+            } else if (typeof window.orientation === 'number') {
+                orientAngle = window.orientation;
+            }
+
+            let tilt = 0;
+            // In landscape (90 deg counter-clockwise): beta is tilt left/right
+            if (orientAngle === 90) {
+                tilt = e.beta;
+            } else if (orientAngle === -90 || orientAngle === 270) {
+                tilt = -e.beta;
+            } else {
+                tilt = e.gamma;
+            }
+
+            if (tilt === null || isNaN(tilt)) return;
+            gyroActive = true;
+
+            const deadzone = 3.0; // 3 degree deadzone to prevent drift
+            const maxTilt = 22.0; // 22 degrees for max turn
+            if (Math.abs(tilt) < deadzone) {
+                gyroTilt = 0;
+            } else {
+                const sign = Math.sign(tilt);
+                const norm = (Math.abs(tilt) - deadzone) / (maxTilt - deadzone);
+                gyroTilt = sign * Math.min(1.0, Math.max(0, norm));
+            }
         }
-        bindTouch(touchLeft, 'ArrowLeft');
-        bindTouch(touchRight, 'ArrowRight');
+
+        function enableGyro() {
+            if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+                DeviceOrientationEvent.requestPermission()
+                    .then(permissionState => {
+                        if (permissionState === 'granted') {
+                            if (!gyroListenerActive) {
+                                window.addEventListener('deviceorientation', handleGyroOrientation, true);
+                                gyroListenerActive = true;
+                            }
+                        } else {
+                            showControlToast('GYRO PERMISSION DENIED - USING TAP', '#ffaa00');
+                            setControlMode('tap');
+                        }
+                    })
+                    .catch(err => {
+                        console.warn('DeviceOrientation error:', err);
+                        setControlMode('tap');
+                    });
+            } else {
+                if (!gyroListenerActive) {
+                    window.addEventListener('deviceorientation', handleGyroOrientation, true);
+                    gyroListenerActive = true;
+                }
+            }
+        }
+
+        // --- FULLSCREEN INVISIBLE TAP STEERING (LEFT / RIGHT SIDES) ---
+        let activeLeftTouches = 0;
+        let activeRightTouches = 0;
+
+        function updateTapSteeringUI() {
+            if (activeLeftTouches > 0) {
+                if (tapZoneLeft) tapZoneLeft.classList.add('active');
+                keys.ArrowLeft = true;
+            } else {
+                if (tapZoneLeft) tapZoneLeft.classList.remove('active');
+                if (controlMode !== 'pc') keys.ArrowLeft = false;
+            }
+
+            if (activeRightTouches > 0) {
+                if (tapZoneRight) tapZoneRight.classList.add('active');
+                keys.ArrowRight = true;
+            } else {
+                if (tapZoneRight) tapZoneRight.classList.remove('active');
+                if (controlMode !== 'pc') keys.ArrowRight = false;
+            }
+        }
+
+        function bindTapZone(zone, isLeft) {
+            if (!zone) return;
+            const start = (e) => {
+                e.preventDefault();
+                tryRestoreFullscreen();
+                if (isLeft) activeLeftTouches++;
+                else activeRightTouches++;
+                updateTapSteeringUI();
+            };
+            const end = (e) => {
+                e.preventDefault();
+                if (isLeft) activeLeftTouches = Math.max(0, activeLeftTouches - 1);
+                else activeRightTouches = Math.max(0, activeRightTouches - 1);
+                updateTapSteeringUI();
+            };
+
+            zone.addEventListener('touchstart', start, { passive: false });
+            zone.addEventListener('touchend', end, { passive: false });
+            zone.addEventListener('touchcancel', end, { passive: false });
+
+            // Mouse click/hold fallback for testing tap steering on desktop
+            zone.addEventListener('mousedown', (e) => {
+                if (e.button === 0) {
+                    tryRestoreFullscreen();
+                    if (isLeft) activeLeftTouches = 1;
+                    else activeRightTouches = 1;
+                    updateTapSteeringUI();
+                }
+            });
+        }
+
+        bindTapZone(tapZoneLeft, true);
+        bindTapZone(tapZoneRight, false);
+
+        window.addEventListener('mouseup', () => {
+            activeLeftTouches = 0;
+            activeRightTouches = 0;
+            updateTapSteeringUI();
+        });
+
+        // Initialize default control mode based on device or saved setting
+        const isMobile = /Android|iPhone|iPad|iPod|Windows Phone/i.test(navigator.userAgent) || ('ontouchstart' in window);
+        const savedCtrl = localStorage.getItem('horizon_control_mode');
+        if (savedCtrl === 'pc' || savedCtrl === 'tap' || savedCtrl === 'gyro') {
+            setControlMode(savedCtrl, true);
+        } else if (isMobile) {
+            setControlMode('tap', true);
+        } else {
+            setControlMode('pc', true);
+        }
 
         // --- FULLSCREEN PERSISTENCE & TOGGLE ---
         const fullscreenBtn = document.getElementById('fullscreen-btn');
+        const urlWantsFullscreen = window.location.search.includes('fullscreen=1') ||
+                                   window.location.hash.includes('fullscreen') ||
+                                   (localStorage.getItem('horizon_persistent_fullscreen') === 'true') ||
+                                   (sessionStorage.getItem('horizon_persistent_fullscreen') === 'true');
+
+        if (urlWantsFullscreen) {
+            localStorage.setItem('horizon_persistent_fullscreen', 'true');
+            sessionStorage.setItem('horizon_persistent_fullscreen', 'true');
+        }
+
+        function tryRestoreFullscreen() {
+            const wantsFs = window.location.search.includes('fullscreen=1') ||
+                            (localStorage.getItem('horizon_persistent_fullscreen') === 'true') ||
+                            (sessionStorage.getItem('horizon_persistent_fullscreen') === 'true');
+            if (wantsFs && !document.fullscreenElement) {
+                const req = document.documentElement.requestFullscreen ||
+                            document.documentElement.webkitRequestFullscreen ||
+                            document.documentElement.msRequestFullscreen;
+                if (req) {
+                    req.call(document.documentElement).then(() => {
+                        if (fullscreenBtn) fullscreenBtn.innerText = '⛶ EXIT FULL';
+                        localStorage.setItem('horizon_persistent_fullscreen', 'true');
+                        sessionStorage.setItem('horizon_persistent_fullscreen', 'true');
+                    }).catch(() => {});
+                }
+            }
+        }
+
+        // Try restoring fullscreen immediately on script execution
+        tryRestoreFullscreen();
+
+        // Listen for ANY user interaction across the entire window to engage fullscreen
+        ['pointerdown', 'touchstart', 'touchend', 'click', 'keydown'].forEach(evt => {
+            window.addEventListener(evt, tryRestoreFullscreen, { capture: true, passive: true });
+        });
+
         function toggleFullscreen() {
             if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen().then(() => {
-                    if (fullscreenBtn) fullscreenBtn.innerText = '⛶ EXIT FULL';
-                    localStorage.setItem('horizon_persistent_fullscreen', 'true');
-                }).catch(err => console.warn(err));
+                const req = document.documentElement.requestFullscreen ||
+                            document.documentElement.webkitRequestFullscreen ||
+                            document.documentElement.msRequestFullscreen;
+                if (req) {
+                    req.call(document.documentElement).then(() => {
+                        if (fullscreenBtn) fullscreenBtn.innerText = '⛶ EXIT FULL';
+                        localStorage.setItem('horizon_persistent_fullscreen', 'true');
+                        sessionStorage.setItem('horizon_persistent_fullscreen', 'true');
+                    }).catch(err => console.warn(err));
+                }
             } else {
-                if (document.exitFullscreen) {
-                    document.exitFullscreen().then(() => {
+                const exit = document.exitFullscreen ||
+                             document.webkitExitFullscreen ||
+                             document.msExitFullscreen;
+                if (exit) {
+                    exit.call(document).then(() => {
                         if (fullscreenBtn) fullscreenBtn.innerText = '⛶ FULLSCREEN';
                         localStorage.setItem('horizon_persistent_fullscreen', 'false');
+                        sessionStorage.removeItem('horizon_persistent_fullscreen');
                     }).catch(err => console.warn(err));
                 }
             }
@@ -3744,24 +3984,11 @@
         document.addEventListener('fullscreenchange', () => {
             if (!document.fullscreenElement) {
                 if (fullscreenBtn) fullscreenBtn.innerText = '⛶ FULLSCREEN';
-                localStorage.setItem('horizon_persistent_fullscreen', 'false');
             } else {
                 if (fullscreenBtn) fullscreenBtn.innerText = '⛶ EXIT FULL';
                 localStorage.setItem('horizon_persistent_fullscreen', 'true');
+                sessionStorage.setItem('horizon_persistent_fullscreen', 'true');
             }
-        });
-
-        // Automatically restore fullscreen seamlessly on first user interaction if enabled
-        function tryRestoreFullscreen() {
-            if (localStorage.getItem('horizon_persistent_fullscreen') === 'true' && !document.fullscreenElement) {
-                document.documentElement.requestFullscreen().then(() => {
-                    if (fullscreenBtn) fullscreenBtn.innerText = '⛶ EXIT FULL';
-                }).catch(() => {});
-            }
-        }
-
-        ['pointerdown', 'touchstart', 'click', 'keydown'].forEach(evt => {
-            window.addEventListener(evt, tryRestoreFullscreen, { passive: true });
         });
 
         window.addEventListener('resize', () => {
@@ -3780,6 +4007,7 @@
         const clock = new THREE.Clock();
 
         function resetGame() {
+            tryRestoreFullscreen();
             initAudio();
             startEngineSound();
 
@@ -3861,8 +4089,18 @@
                     engineOsc.frequency.setTargetAtTime(50 + (speed * 40), audioCtx.currentTime, 0.1);
                 }
 
-                if (keys.ArrowLeft || keys.a) playerVelocityX -= playerAcc * dt;
-                if (keys.ArrowRight || keys.d) playerVelocityX += playerAcc * dt;
+                let steerDir = 0;
+                if (keys.ArrowLeft || keys.a) steerDir -= 1.0;
+                if (keys.ArrowRight || keys.d) steerDir += 1.0;
+
+                if (controlMode === 'gyro' && Math.abs(gyroTilt) > 0.01) {
+                    steerDir += gyroTilt;
+                    steerDir = Math.max(-1.0, Math.min(1.0, steerDir));
+                }
+
+                if (steerDir !== 0) {
+                    playerVelocityX += steerDir * playerAcc * dt;
+                }
 
                 playerVelocityX *= Math.pow(friction, dt);
                 player.position.x += playerVelocityX * dt;
